@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revamp Studio — เปลี่ยนเว็บไซต์ของคุณใหม่</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--ink:#0a0a0f;--paper:#f5f2eb;--cream:#faf8f3;--accent:#e63c2f;--accent2:#ff6b35;--gold:#c9a84c;--mid:#6b6b7b;--border:#d4d0c8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--ink);font-family:'Sarabun',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.4}
+
+/* TICKER */
+.ticker{background:var(--accent);color:#fff;padding:8px 0;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-block;animation:ticker 30s linear infinite;font-family:'Prompt',sans-serif;font-size:0.78rem;font-weight:600;letter-spacing:0.1em}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;background:var(--ink);color:var(--paper);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:64px;border-bottom:2px solid var(--accent)}
+.logo{font-family:'Prompt',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:-0.02em}
+.logo span{color:var(--accent)}
+.nav-cta{background:var(--accent);color:#fff;border:none;padding:8px 20px;font-family:'Prompt',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background 0.2s}
+.nav-cta:hover{background:var(--accent2)}
+
+/* HERO */
+.hero{background:var(--ink);color:var(--paper);padding:100px 5vw 80px;position:relative;overflow:hidden}
+.hero::after{content:'REVAMP';position:absolute;bottom:-30px;right:-20px;font-family:'Prompt',sans-serif;font-weight:800;font-size:clamp(80px,18vw,220px);color:rgba(255,255,255,0.04);letter-spacing:-0.05em;pointer-events:none;user-select:none}
+.hero-label{font-family:'Prompt',sans-serif;font-size:0.8rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;animation:fadeUp 0.5s ease both}
+.hero h1{font-family:'Prompt',sans-serif;font-weight:800;font-size:clamp(2.4rem,6vw,5rem);line-height:1.05;letter-spacing:-0.03em;max-width:800px;margin-bottom:24px;animation:fadeUp 0.5s 0.1s ease both}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{font-size:1.1rem;color:rgba(245,242,235,0.65);max-width:540px;margin-bottom:40px;line-height:1.7;animation:fadeUp 0.5s 0.2s ease both}
+.hero-stats{display:flex;gap:40px;flex-wrap:wrap;animation:fadeUp 0.5s 0.3s ease both}
+.stat{border-left:2px solid var(--accent);padding-left:16px}
+.stat-num{font-family:'Prompt',sans-serif;font-size:2rem;font-weight:800}
+.stat-label{font-size:0.82rem;color:rgba(245,242,235,0.5);letter-spacing:0.05em}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTIONS */
+.section{padding:80px 5vw}
+.section-label{font-family:'Prompt',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.section-title{font-family:'Prompt',sans-serif;font-weight:800;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-0.025em;line-height:1.1;margin-bottom:12px}
+.section-sub{color:var(--mid);max-width:500px;font-size:1rem;margin-bottom:48px}
+
+/* CALCULATOR */
+.calculator-wrapper{background:var(--paper);border:2px solid var(--ink);max-width:1100px}
+.calc-header{background:var(--ink);color:var(--paper);padding:20px 32px;display:flex;align-items:center;justify-content:space-between}
+.calc-header h3{font-family:'Prompt',sans-serif;font-weight:700;font-size:1rem;letter-spacing:0.05em}
+.calc-badge{background:var(--accent);color:#fff;font-family:'Prompt',sans-serif;font-size:0.75rem;font-weight:700;padding:4px 10px}
+.calc-body{padding:32px;display:grid;grid-template-columns:1fr 340px;gap:40px}
+@media(max-width:800px){.calc-body{grid-template-columns:1fr}}
+
+/* OPTION GROUPS */
+.option-group{margin-bottom:36px}
+.option-group:last-child{margin-bottom:0}
+.og-label{font-family:'Prompt',sans-serif;font-weight:700;font-size:0.82rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid);margin-bottom:4px}
+.og-title{font-family:'Prompt',sans-serif;font-weight:700;font-size:1.15rem;color:var(--ink);margin-bottom:16px}
+.options-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.options-grid.c2{grid-template-columns:repeat(auto-fill,minmax(175px,1fr))}
+.multi-note{font-size:0.78rem;color:var(--mid);margin-bottom:12px;padding:8px 12px;border-left:3px solid var(--gold);background:rgba(201,168,76,0.08)}
+.divider{border:none;border-top:1px solid var(--border);margin:32px 0}
+
+/* OPTION CARD */
+.option-card{border:2px solid var(--border);padding:16px;cursor:pointer;transition:all 0.15s;background:#fff;position:relative;user-select:none}
+.option-card:hover{border-color:var(--ink);transform:translateY(-1px)}
+.option-card.selected{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.option-card.selected .opt-price{color:#ff9a7a}
+.option-card.selected .opt-desc{color:rgba(245,242,235,0.6)}
+.opt-check{position:absolute;top:10px;right:10px;width:20px;height:20px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.15s}
+.option-card.selected .opt-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt-name{font-family:'Prompt',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:4px;padding-right:20px}
+.opt-price{font-family:'Prompt',sans-serif;font-weight:800;font-size:1.1rem;color:var(--accent);margin-bottom:4px}
+.opt-desc{font-size:0.78rem;color:var(--mid);line-height:1.5}
+.opt-tag{display:inline-block;background:var(--accent);color:#fff;font-size:0.65rem;font-family:'Prompt',sans-serif;font-weight:700;padding:2px 6px;margin-bottom:4px}
+
+/* SHOP SUB-PANEL */
+.shop-sub{display:none;border:2px dashed var(--accent);background:rgba(230,60,47,0.04);padding:16px 18px 18px;margin-top:10px}
+.shop-sub.visible{display:block;animation:fadeUp 0.2s ease both}
+.shop-sub-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.shop-sub-head span:first-child{font-family:'Prompt',sans-serif;font-weight:700;font-size:0.9rem}
+.shop-sub-note{font-size:0.75rem;background:rgba(201,168,76,0.15);border:1px solid var(--gold);padding:2px 8px;color:#8a6d1a;font-family:'Prompt',sans-serif;font-weight:600}
+.qty-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.qty-card{border:2px solid var(--border);padding:12px 14px;cursor:pointer;background:#fff;transition:all 0.15s;position:relative;user-select:none}
+.qty-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.qty-card.selected{border-color:var(--accent);background:var(--accent);color:#fff}
+.qty-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all 0.15s}
+.qty-card.selected .qty-check{background:#fff;border-color:#fff;color:var(--accent);font-weight:900}
+.qty-range{font-family:'Prompt',sans-serif;font-weight:800;font-size:1rem;padding-right:20px;margin-bottom:2px}
+.qty-price{font-family:'Prompt',sans-serif;font-weight:700;font-size:0.85rem;margin-bottom:4px}
+.qty-card.selected .qty-price{color:rgba(255,255,255,0.85)}
+.qty-desc{font-size:0.72rem;color:var(--mid);line-height:1.4}
+.qty-card.selected .qty-desc{color:rgba(255,255,255,0.7)}
+
+/* SUMMARY PANEL */
+.summary-panel{position:sticky;top:80px;align-self:start}
+.summary-box{border:2px solid var(--ink);background:#fff;overflow:hidden}
+.summary-head{background:var(--ink);color:var(--paper);padding:16px 20px;font-family:'Prompt',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:0.05em}
+.summary-items{padding:16px 20px;min-height:180px}
+.summary-item{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--border);font-size:0.88rem;gap:10px}
+.summary-item:last-child{border-bottom:none}
+.si-name{color:var(--mid);flex:1}
+.si-price{font-family:'Prompt',sans-serif;font-weight:700;white-space:nowrap}
+.summary-empty{color:var(--border);font-size:0.85rem;padding:20px 0;text-align:center;font-style:italic}
+.summary-foot{border-top:2px solid var(--ink);padding:16px 20px;background:var(--paper)}
+.total-lbl{font-size:0.8rem;color:var(--mid);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+.total-amt{font-family:'Prompt',sans-serif;font-weight:800;font-size:2rem;color:var(--ink);letter-spacing:-0.02em}
+.total-amt span{font-size:1rem;font-weight:500;color:var(--mid);margin-left:4px}
+.total-note{font-size:0.75rem;color:var(--mid);margin-top:4px}
+.cta-btn{display:block;width:100%;margin-top:16px;background:var(--accent);color:#fff;border:none;padding:16px;font-family:'Prompt',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:background 0.2s}
+.cta-btn:hover{background:var(--accent2)}
+.reset-btn{display:block;width:100%;margin-top:8px;background:transparent;color:var(--mid);border:1px solid var(--border);padding:10px;font-family:'Sarabun',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.15s}
+.reset-btn:hover{border-color:var(--ink);color:var(--ink)}
+
+/* PROCESS */
+.process-section{background:var(--ink);color:var(--paper);padding:80px 5vw}
+.process-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px;margin-top:48px;border:2px solid rgba(255,255,255,0.1)}
+.process-step{padding:32px 24px;border-right:2px solid rgba(255,255,255,0.1)}
+.process-step:last-child{border-right:none}
+.step-num{font-family:'Prompt',sans-serif;font-weight:800;font-size:3rem;color:rgba(255,255,255,0.06);line-height:1;margin-bottom:16px}
+.step-icon{font-size:1.5rem;margin-bottom:10px}
+.step-title{font-family:'Prompt',sans-serif;font-weight:700;font-size:1rem;margin-bottom:8px}
+.step-desc{font-size:0.85rem;color:rgba(245,242,235,0.5);line-height:1.6}
+
+/* WHY */
+.why-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin-top:48px}
+.why-card{border:1px solid var(--border);padding:28px;background:#fff;transition:border-color 0.2s}
+.why-card:hover{border-color:var(--ink)}
+.why-icon{font-size:1.8rem;margin-bottom:14px}
+.why-title{font-family:'Prompt',sans-serif;font-weight:700;font-size:1rem;margin-bottom:8px}
+.why-desc{font-size:0.88rem;color:var(--mid);line-height:1.6}
+
+/* FOOTER */
+footer{background:var(--ink);color:var(--paper);padding:40px 5vw;display:flex;align-items:center;justify-content:space-between;border-top:3px solid var(--accent);gap:20px;flex-wrap:wrap}
+.footer-contact{font-size:0.85rem;color:rgba(245,242,235,0.5);line-height:1.8;text-align:right}
+@media(max-width:600px){.footer-contact{text-align:left}}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,10,15,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--cream);border:2px solid var(--ink);width:100%;max-width:580px;transform:translateY(20px);transition:transform 0.25s;max-height:92vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-head{background:var(--ink);color:var(--paper);padding:20px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+.modal-head h3{font-family:'Prompt',sans-serif;font-weight:700;font-size:1rem}
+.modal-close{background:none;border:none;color:var(--paper);font-size:1.3rem;cursor:pointer;opacity:0.6;transition:opacity 0.15s}
+.modal-close:hover{opacity:1}
+.modal-body{padding:28px}
+
+/* WEBHOOK BOX */
+.webhook-box{background:#fff8f0;border:2px solid var(--gold);padding:14px 16px;margin-bottom:20px}
+.webhook-title{font-family:'Prompt',sans-serif;font-weight:700;font-size:0.82rem;color:#8a6d1a;margin-bottom:8px}
+.webhook-row{display:flex;gap:8px}
+.webhook-row input{border:1px solid var(--gold);background:#fff;padding:7px 10px;font-size:0.8rem;font-family:'Sarabun',sans-serif;color:var(--ink);outline:none;flex:1;min-width:0}
+.webhook-row input:focus{border-color:var(--accent)}
+.webhook-save{background:var(--gold);color:#fff;border:none;padding:7px 12px;font-family:'Prompt',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.webhook-status{font-size:0.75rem;margin-top:6px;color:var(--mid)}
+.webhook-status.ok{color:#2d7a2d;font-weight:600}
+
+/* QUOTE SUMMARY IN MODAL */
+.q-summary{background:#fff;border:1px solid var(--border);padding:16px;margin-bottom:20px}
+.q-summary-title{font-family:'Prompt',sans-serif;font-weight:700;font-size:0.85rem;margin-bottom:10px}
+.q-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--border);font-size:0.83rem}
+.q-row:last-of-type{border-bottom:none}
+.q-row span:first-child{color:var(--mid)}
+.q-row span:last-child{font-weight:700;font-family:'Prompt',sans-serif}
+.q-total{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:2px solid var(--ink)}
+.q-total-lbl{font-family:'Prompt',sans-serif;font-weight:700;font-size:0.85rem}
+.q-total-amt{font-family:'Prompt',sans-serif;font-weight:800;font-size:1.6rem;color:var(--accent)}
+
+/* FORM */
+.flabel{font-family:'Prompt',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--mid);margin:20px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.fg label{font-family:'Prompt',sans-serif;font-size:0.78rem;font-weight:600;color:var(--mid);letter-spacing:0.05em;text-transform:uppercase}
+.fg input,.fg textarea,.fg select{border:2px solid var(--border);background:#fff;padding:10px 12px;font-family:'Sarabun',sans-serif;font-size:0.95rem;color:var(--ink);outline:none;transition:border-color 0.15s;width:100%;appearance:none}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--ink)}
+.fg textarea{resize:vertical;min-height:70px}
+
+/* SUBMIT BTN */
+.submit-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:16px;font-family:'Prompt',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:background 0.2s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:10px}
+.submit-btn:hover:not(:disabled){background:var(--accent2)}
+.submit-btn:disabled{background:#bbb;cursor:not-allowed}
+.spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err-banner{background:#fef0f0;border:1px solid var(--accent);color:var(--accent);padding:10px 14px;font-size:0.85rem;margin-top:12px;display:none}
+.err-banner.show{display:block}
+
+/* SUCCESS STATE */
+.success-state{display:none;padding:8px 0}
+.success-state.show{display:block}
+.success-top{text-align:center;padding:24px 0 20px}
+.success-icon{font-size:3rem;margin-bottom:12px}
+.success-top h4{font-family:'Prompt',sans-serif;font-weight:700;font-size:1.2rem;margin-bottom:8px}
+.success-top p{color:var(--mid);font-size:0.9rem;line-height:1.7}
+
+/* PDF DOWNLOAD BOX — main CTA */
+.pdf-box{background:var(--ink);padding:24px;margin:20px 0;text-align:center}
+.pdf-box-icon{font-size:2.5rem;margin-bottom:10px}
+.pdf-box h5{font-family:'Prompt',sans-serif;font-weight:700;font-size:1rem;color:var(--paper);margin-bottom:4px}
+.pdf-box-meta{font-size:0.82rem;color:rgba(245,242,235,0.5);margin-bottom:16px}
+.btn-download-pdf{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;padding:14px 28px;font-family:'Prompt',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:background 0.2s;width:100%;justify-content:center}
+.btn-download-pdf:hover{background:var(--accent2)}
+.pdf-hint{font-size:0.75rem;color:rgba(245,242,235,0.4);margin-top:8px}
+
+.btn-close-success{display:block;width:100%;background:transparent;color:var(--mid);border:1px solid var(--border);padding:12px;font-family:'Sarabun',sans-serif;font-size:0.88rem;cursor:pointer;transition:all 0.15s}
+.btn-close-success:hover{border-color:var(--ink);color:var(--ink)}
+
+@media(max-width:600px){
+  .options-grid,.options-grid.c2{grid-template-columns:1fr}
+  .calc-body{padding:20px}
+  .summary-panel{position:static}
+  .hero{padding:60px 5vw}
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker">
+  <span class="ticker-inner">✦ WEBSITE REVAMP &nbsp;&nbsp;✦ ออกแบบเว็บไซต์ใหม่ &nbsp;&nbsp;✦ UI/UX REDESIGN &nbsp;&nbsp;✦ E-COMMERCE &nbsp;&nbsp;✦ MEMBERSHIP SYSTEM &nbsp;&nbsp;✦ CONTACT FORM &nbsp;&nbsp;✦ WEBSITE REVAMP &nbsp;&nbsp;✦ ออกแบบเว็บไซต์ใหม่ &nbsp;&nbsp;✦ UI/UX REDESIGN &nbsp;&nbsp;✦ E-COMMERCE &nbsp;&nbsp;✦ MEMBERSHIP SYSTEM &nbsp;&nbsp;✦ CONTACT FORM &nbsp;&nbsp;</span>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">REVAMP<span>.</span>STUDIO</div>
+  <button class="nav-cta" id="btnOpenModal">ขอใบเสนอราคา →</button>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-label">✦ WEB DESIGN &amp; REVAMP SERVICE</div>
+  <h1>เปลี่ยนเว็บเก่า<br>ให้<em>กลับมาเจ๋ง</em><br>อีกครั้ง</h1>
+  <p>บริการออกแบบและพัฒนาเว็บไซต์ใหม่ครบวงจร เลือก option ที่ต้องการ ดูราคาได้เลย ไม่ต้องรอ</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">200+</div><div class="stat-label">โปรเจกต์ที่เสร็จ</div></div>
+    <div class="stat"><div class="stat-num">7 วัน</div><div class="stat-label">เวลา deliver เฉลี่ย</div></div>
+    <div class="stat"><div class="stat-num">98%</div><div class="stat-label">ลูกค้าพอใจ</div></div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<section class="section">
+  <div class="section-label">✦ PRICE CALCULATOR</div>
+  <div class="section-title">คำนวณราคา<br>ได้เลยทันที</div>
+  <div class="section-sub">เลือก option ที่ต้องการ ระบบจะสรุปราคาให้อัตโนมัติ</div>
+
+  <div class="calculator-wrapper">
+    <div class="calc-header">
+      <h3>WEBSITE REVAMP — PRICE CONFIGURATOR</h3>
+      <div class="calc-badge">INTERACTIVE</div>
+    </div>
+    <div class="calc-body">
+
+      <!-- LEFT: OPTIONS -->
+      <div class="calc-options">
+
+        <!-- OPT 01: DESIGN -->
+        <div class="option-group">
+          <div class="og-label">OPTION 01</div>
+          <div class="og-title">🎨 ระดับ Design</div>
+          <div class="options-grid">
+            <div class="option-card" data-group="design" data-type="single" data-price="8000" data-name="Standard Design (8,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">Standard</div>
+              <div class="opt-price">฿8,000</div>
+              <div class="opt-desc">Template-based, ปรับสี/โลโก้</div>
+            </div>
+            <div class="option-card" data-group="design" data-type="single" data-price="18000" data-name="Custom Design (18,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-tag">POPULAR</div>
+              <div class="opt-name">Custom</div>
+              <div class="opt-price">฿18,000</div>
+              <div class="opt-desc">ออกแบบ UI ใหม่ตามแบรนด์ + wireframe</div>
+            </div>
+            <div class="option-card" data-group="design" data-type="single" data-price="35000" data-name="Premium Design (35,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">Premium</div>
+              <div class="opt-price">฿35,000</div>
+              <div class="opt-desc">Full branding + motion design</div>
+            </div>
+          </div>
+        </div>
+        <hr class="divider">
+
+        <!-- OPT 02: PAGES -->
+        <div class="option-group">
+          <div class="og-label">OPTION 02</div>
+          <div class="og-title">📄 จำนวน Page</div>
+          <div class="options-grid c2">
+            <div class="option-card" data-group="pages" data-type="single" data-price="0" data-name="1-5 หน้า (รวมแล้ว)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">1–5 หน้า</div>
+              <div class="opt-price">รวมในแพ็กเกจ</div>
+              <div class="opt-desc">Home, About, Services, Contact</div>
+            </div>
+            <div class="option-card" data-group="pages" data-type="single" data-price="5000" data-name="6-10 หน้า (+5,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">6–10 หน้า</div>
+              <div class="opt-price">+฿5,000</div>
+              <div class="opt-desc">เพิ่มหน้า Portfolio, Blog, FAQ ฯลฯ</div>
+            </div>
+            <div class="option-card" data-group="pages" data-type="single" data-price="12000" data-name="11-20 หน้า (+12,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">11–20 หน้า</div>
+              <div class="opt-price">+฿12,000</div>
+              <div class="opt-desc">เหมาะ SME มีหลายหมวดสินค้า</div>
+            </div>
+            <div class="option-card" data-group="pages" data-type="single" data-price="25000" data-name="20+ หน้า (+25,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">20+ หน้า</div>
+              <div class="opt-price">+฿25,000</div>
+              <div class="opt-desc">ไซต์ขนาดใหญ่ กำหนดตามตกลง</div>
+            </div>
+          </div>
+        </div>
+        <hr class="divider">
+
+        <!-- OPT 03: FORM -->
+        <div class="option-group">
+          <div class="og-label">OPTION 03</div>
+          <div class="og-title">📬 Contact / Form</div>
+          <div class="multi-note">⬡ เลือกได้หลาย option (ราคาสะสม)</div>
+          <div class="options-grid c2">
+            <div class="option-card" data-group="form" data-type="multi" data-price="0" data-name="Contact Form พื้นฐาน (รวมแล้ว)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">Contact Form</div>
+              <div class="opt-price">รวมในแพ็กเกจ</div>
+              <div class="opt-desc">ชื่อ, อีเมล, เบอร์ + ส่งอีเมล</div>
+            </div>
+            <div class="option-card" data-group="form" data-type="multi" data-price="3500" data-name="Multi-step Form (+3,500)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">Multi-step Form</div>
+              <div class="opt-price">+฿3,500</div>
+              <div class="opt-desc">ฟอร์มหลายขั้นตอน สอบถามราคา</div>
+            </div>
+            <div class="option-card" data-group="form" data-type="multi" data-price="4500" data-name="Line Notify / OTP (+4,500)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">Line Notify / OTP</div>
+              <div class="opt-price">+฿4,500</div>
+              <div class="opt-desc">แจ้งเตือน Line หรือส่ง OTP</div>
+            </div>
+            <div class="option-card" data-group="form" data-type="multi" data-price="5500" data-name="Booking / Calendar (+5,500)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">Booking / Calendar</div>
+              <div class="opt-price">+฿5,500</div>
+              <div class="opt-desc">ระบบจองนัด เลือกวันเวลา</div>
+            </div>
+          </div>
+        </div>
+        <hr class="divider">
+
+        <!-- OPT 04: ECOM -->
+        <div class="option-group">
+          <div class="og-label">OPTION 04</div>
+          <div class="og-title">🛒 ร้านค้า / E-Commerce</div>
+          <div class="multi-note">⬡ เลือกได้หลาย option (ราคาสะสม)</div>
+          <div class="options-grid c2">
+            <div class="option-card" id="cardShop" data-group="ecom" data-type="shop" data-price="12000" data-name="สินค้า + ตะกร้า">
+              <div class="opt-check">✓</div>
+              <div class="opt-tag">POPULAR</div>
+              <div class="opt-name">สินค้า + ตะกร้า</div>
+              <div class="opt-price" id="shopPrice">+฿12,000</div>
+              <div class="opt-desc">หน้าสินค้า, ตะกร้า, variant</div>
+            </div>
+          </div>
+          <!-- QTY SUB-PANEL -->
+          <div id="shopSubPanel" class="shop-sub">
+            <div class="shop-sub-head">
+              <span>📦 จำนวนสินค้าที่ต้องการลง</span>
+              <span class="shop-sub-note">เลือก 1 ตัวเลือก</span>
+            </div>
+            <div class="qty-grid">
+              <div class="qty-card selected" data-qprice="0" data-qname="ไม่เกิน 50 ชิ้น">
+                <div class="qty-check">✓</div>
+                <div class="qty-range">≤ 5 ชิ้น</div>
+                <div class="qty-price">รวมในแพ็กเกจ</div>
+                <div class="qty-desc">ร้านค้าเริ่มต้น</div>
+              </div>
+              <div class="qty-card" data-qprice="3000" data-qname="51-200 ชิ้น (+3,000)">
+                <div class="qty-check">✓</div>
+                <div class="qty-range">6–10 ชิ้น</div>
+                <div class="qty-price">+฿3,000</div>
+                <div class="qty-desc">ร้านค้ากลาง</div>
+              </div>
+              <div class="qty-card" data-qprice="7000" data-qname="201-500 ชิ้น (+7,000)">
+                <div class="qty-check">✓</div>
+                <div class="qty-range">11–20 ชิ้น</div>
+                <div class="qty-price">+฿7,000</div>
+                <div class="qty-desc">ร้านใหญ่ + import CSV</div>
+              </div>
+              <div class="qty-card" data-qprice="15000" data-qname="500+ ชิ้น (+15,000)">
+                <div class="qty-check">✓</div>
+                <div class="qty-range">20+ ชิ้น</div>
+                <div class="qty-price">+฿15,000</div>
+                <div class="qty-desc">Catalog ใหญ่ + bulk import</div>
+              </div>
+            </div>
+          </div>
+          <!-- OTHER ECOM -->
+          <div class="options-grid c2" style="margin-top:10px">
+            <div class="option-card" data-group="ecom" data-type="multi" data-price="8000" data-name="Checkout + ชำระเงิน (+8,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">Checkout + ชำระเงิน</div>
+              <div class="opt-price">+฿8,000</div>
+              <div class="opt-desc">QR PromptPay, COD</div>
+            </div>
+            <div class="option-card" data-group="ecom" data-type="multi" data-price="6000" data-name="Request Quotation (+6,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">Request Quotation</div>
+              <div class="opt-price">+฿6,000</div>
+              <div class="opt-desc">B2B ส่งคำขอใบเสนอราคา</div>
+            </div>
+            <div class="option-card" data-group="ecom" data-type="multi" data-price="9000" data-name="Order Management (+9,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">Order Management</div>
+              <div class="opt-price">+฿9,000</div>
+              <div class="opt-desc">Admin จัดการออเดอร์ + tracking</div>
+            </div>
+          </div>
+        </div>
+        <hr class="divider">
+
+        <!-- OPT 05: MEMBER -->
+        <div class="option-group">
+          <div class="og-label">OPTION 05</div>
+          <div class="og-title">👤 Membership System</div>
+          <div class="options-grid">
+            <div class="option-card" data-group="member" data-type="single" data-price="0" data-name="ไม่มี Membership">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">ไม่ต้องการ</div>
+              <div class="opt-price">฿0</div>
+              <div class="opt-desc">เว็บ informational ทั่วไป</div>
+            </div>
+            <div class="option-card" data-group="member" data-type="single" data-price="10000" data-name="Basic Membership (+10,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-name">Basic Member</div>
+              <div class="opt-price">+฿10,000</div>
+              <div class="opt-desc">Login, โปรไฟล์, ประวัติ</div>
+            </div>
+            <div class="option-card" data-group="member" data-type="single" data-price="18000" data-name="Advanced Membership (+18,000)">
+              <div class="opt-check">✓</div>
+              <div class="opt-tag">NEW</div>
+              <div class="opt-name">Advanced Member</div>
+              <div class="opt-price">+฿18,000</div>
+              <div class="opt-desc">Tier / Point, คูปอง, Dashboard</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /calc-options -->
+
+      <!-- RIGHT: SUMMARY -->
+      <div class="summary-panel">
+        <div class="summary-box">
+          <div class="summary-head">📋 สรุปรายการ</div>
+          <div class="summary-items" id="summaryItems">
+            <div class="summary-empty">ยังไม่ได้เลือก option ใด</div>
+          </div>
+          <div class="summary-foot">
+            <div class="total-lbl">ราคารวมโดยประมาณ</div>
+            <div class="total-amt" id="totalAmt">฿0 <span>บาท</span></div>
+            <div class="total-note" id="totalNote">เลือก option ด้านซ้ายเพื่อดูราคา</div>
+            <button class="cta-btn" id="btnSummaryModal">ขอใบเสนอราคา + รับ PDF →</button>
+            <button class="reset-btn" id="btnReset">↺ เริ่มใหม่</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process-section">
+  <div class="section-label" style="color:rgba(255,255,255,0.4)">✦ HOW WE WORK</div>
+  <div class="section-title" style="color:var(--paper)">ขั้นตอน<br>การทำงาน</div>
+  <div class="process-grid">
+    <div class="process-step"><div class="step-num">01</div><div class="step-icon">💬</div><div class="step-title">Brief &amp; Scope</div><div class="step-desc">คุยเพื่อเข้าใจธุรกิจ เป้าหมาย และ requirement ทั้งหมด</div></div>
+    <div class="process-step"><div class="step-num">02</div><div class="step-icon">✏️</div><div class="step-title">Design &amp; Wireframe</div><div class="step-desc">ออกแบบ wireframe และ mockup เสร็จก่อน code ทุกครั้ง</div></div>
+    <div class="process-step"><div class="step-num">03</div><div class="step-icon">⚙️</div><div class="step-title">Develop</div><div class="step-desc">พัฒนาตาม spec ส่ง progress update ทุก 2-3 วัน</div></div>
+    <div class="process-step"><div class="step-num">04</div><div class="step-icon">🚀</div><div class="step-title">Launch &amp; Support</div><div class="step-desc">ทดสอบ ปล่อย live และ support หลัง launch 30 วัน</div></div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="section">
+  <div class="section-label">✦ WHY REVAMP STUDIO</div>
+  <div class="section-title">ทำไมต้องเลือกเรา</div>
+  <div class="why-grid">
+    <div class="why-card"><div class="why-icon">⚡</div><div class="why-title">Deliver ไว ตรงเวลา</div><div class="why-desc">ทีมงานมืออาชีพ deliver ตรงเวลาทุกโปรเจกต์ ไม่เงียบหาย</div></div>
+    <div class="why-card"><div class="why-icon">📱</div><div class="why-title">Mobile-First</div><div class="why-desc">ออกแบบ responsive ตั้งแต่ mobile ก่อน ทดสอบทุก device</div></div>
+    <div class="why-card"><div class="why-icon">🔍</div><div class="why-title">SEO-Ready</div><div class="why-desc">โค้ดสะอาด loading เร็ว structured data ครบ พร้อม rank ใน Google</div></div>
+    <div class="why-card"><div class="why-icon">🛡️</div><div class="why-title">รับประกัน 30 วัน</div><div class="why-desc">หลัง launch แก้ bug ฟรี 30 วัน support ผ่าน Line ตลอด</div></div>
+    <div class="why-card"><div class="why-icon">💳</div><div class="why-title">ราคาโปร่งใส</div><div class="why-desc">ราคาชัดเจนตั้งแต่ต้น ไม่มีค่าใช้จ่ายซ่อน</div></div>
+    <div class="why-card"><div class="why-icon">🎓</div><div class="why-title">สอนใช้งานระบบ</div><div class="why-desc">มีคู่มือและ video สอนการใช้ CMS / admin panel ทุกโปรเจกต์</div></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">REVAMP<span>.</span>STUDIO</div>
+  <div class="footer-contact">📞 086-000-0000<br>✉ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="422a272e2e2d02302734232f326c313637262b2d">[email&#160;protected]</a><br>💬 @revampstudio (Line)</div>
+</footer>
+
+<!-- ═══════ MODAL ═══════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>📄 ขอใบเสนอราคา</h3>
+      <button class="modal-close" id="btnCloseModal">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- ── FORM STATE ── -->
+      <div id="formState">
+
+        <!-- Webhook config (เจ้าของไซต์ตั้งครั้งเดียว) -->
+        <div class="webhook-box">
+          <div class="webhook-title">⚙️ Make.com Webhook URL <span style="font-weight:400;color:#aaa">(ตั้งค่าครั้งเดียว)</span></div>
+          <div class="webhook-row">
+            <input type="url" id="webhookInput" placeholder="https://hook.eu1.make.com/xxxxxxxx">
+            <button class="webhook-save" id="btnSaveWebhook">บันทึก</button>
+          </div>
+          <div class="webhook-status" id="webhookStatus">ยังไม่ได้ตั้งค่า</div>
+        </div>
+
+        <!-- Quote summary -->
+        <div class="q-summary">
+          <div class="q-summary-title">📋 รายการที่เลือก</div>
+          <div id="modalRows"></div>
+          <div class="q-total">
+            <span class="q-total-lbl">รวมโดยประมาณ</span>
+            <span class="q-total-amt" id="modalTotal">฿0</span>
+          </div>
+        </div>
+
+        <!-- Customer info -->
+        <div class="flabel">ข้อมูลผู้ติดต่อ</div>
+        <div class="form-row">
+          <div class="fg"><label>ชื่อ-นามสกุล *</label><input type="text" id="fname" placeholder="สมชาย ใจดี"></div>
+          <div class="fg"><label>ชื่อบริษัท / แบรนด์</label><input type="text" id="fcompany" placeholder="บริษัท ABC จำกัด"></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>เบอร์โทรศัพท์ *</label><input type="tel" id="fphone" placeholder="08X-XXX-XXXX"></div>
+          <div class="fg"><label>อีเมล *</label><input type="email" id="femail" placeholder="name@email.com"></div>
+        </div>
+        <div class="fg"><label>URL เว็บไซต์ปัจจุบัน</label><input type="url" id="furl" placeholder="https://yourwebsite.com"></div>
+        <div class="fg">
+          <label>งบประมาณที่มี</label>
+          <select id="fbudget">
+            <option value="">— เลือกช่วงงบประมาณ —</option>
+            <option>ต่ำกว่า 20,000 บาท</option>
+            <option>20,000 - 50,000 บาท</option>
+            <option>50,000 - 100,000 บาท</option>
+            <option>มากกว่า 100,000 บาท</option>
+            <option>ยังไม่แน่ใจ</option>
+          </select>
+        </div>
+        <div class="fg"><label>รายละเอียดเพิ่มเติม</label><textarea id="fmessage" placeholder="timeline, ระบบพิเศษ, CMS ที่ต้องการ..."></textarea></div>
+
+        <button class="submit-btn" id="btnSubmit">
+          <div class="spinner" id="spinner"></div>
+          <span id="btnSubmitTxt">ส่งข้อมูล + สร้าง PDF →</span>
+        </button>
+        <div class="err-banner" id="errBanner"></div>
+      </div>
+
+      <!-- ── SUCCESS STATE ── -->
+      <div class="success-state" id="successState">
+
+        <div class="success-top">
+          <div class="success-icon">✅</div>
+          <h4>ส่งข้อมูลสำเร็จแล้ว!</h4>
+          <p>ทีมงานได้รับคำขอจาก<br>
+            <strong id="successName"></strong><br>
+            และจะติดต่อกลับที่ <strong id="successEmail"></strong><br>
+            ภายใน 24 ชั่วโมงค่ะ 🙏
+          </p>
+        </div>
+
+        <!-- PDF DOWNLOAD — main CTA -->
+        <div class="pdf-box">
+          <div class="pdf-box-icon">📄</div>
+          <h5>ใบเสนอราคาของคุณพร้อมแล้ว</h5>
+          <div class="pdf-box-meta" id="pdfMeta"></div>
+          <button class="btn-download-pdf" id="btnDownloadPDF">
+            ⬇&nbsp; Download ใบเสนอราคา PDF
+          </button>
+          <div class="pdf-hint">สร้างด้วย jsPDF · ฟรี ไม่มีลิมิต</div>
+        </div>
+
+        <button class="btn-close-success" id="btnCloseSuccess">ปิดหน้าต่าง</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ════ CONFIG ════ */
+  var OWNER_EMAIL = 'mr.guyus@gmail.com'; // อีเมลเจ้าของ (CC)
+  var WH_KEY      = 'revamp_wh_v3';        // localStorage key
+
+  /* ════ STATE ════ */
+  var BASE_SHOP = 12000;
+  var state = {
+    single: {}, multi: {},
+    shopActive: false,
+    shopQty: { name: 'ไม่เกิน 50 ชิ้น', price: 0 }
+  };
+  var pdfDoc     = null; // jsPDF instance — เก็บไว้ให้ download
+  var pdfQuoteNo = '';   // เลขที่ใบเสนอราคา
+
+  /* ════ WEBHOOK SETUP ════ */
+  var whInput  = document.getElementById('webhookInput');
+  var whStatus = document.getElementById('webhookStatus');
+  var savedWH  = localStorage.getItem(WH_KEY) || '';
+  if (savedWH) {
+    whInput.value = savedWH;
+    whStatus.textContent = '✓ พร้อมใช้งาน';
+    whStatus.className = 'webhook-status ok';
+  }
+  document.getElementById('btnSaveWebhook').addEventListener('click', function () {
+    var u = whInput.value.trim();
+    if (!u.startsWith('http')) { alert('URL ไม่ถูกต้อง'); return; }
+    localStorage.setItem(WH_KEY, u);
+    savedWH = u;
+    whStatus.textContent = '✓ บันทึกแล้ว พร้อมใช้งาน';
+    whStatus.className = 'webhook-status ok';
+  });
+
+  /* ════ HELPERS ════ */
+  function getArr(g) { if (!state.multi[g]) state.multi[g] = []; return state.multi[g]; }
+
+  function collectItems() {
+    var items = [];
+    Object.keys(state.single).forEach(function (g) { if (state.single[g]) items.push(state.single[g]); });
+    Object.keys(state.multi).forEach(function (g) { state.multi[g].forEach(function (i) { items.push(i); }); });
+    if (state.shopActive) {
+      items.push({
+        name: 'สินค้า + ตะกร้า (' + state.shopQty.name + ')',
+        price: BASE_SHOP + state.shopQty.price
+      });
+    }
+    return items;
+  }
+
+  function calcTotal(items) { return items.reduce(function (s, i) { return s + i.price; }, 0); }
+
+  function makeQuoteNo() {
+    var n = new Date();
+    var p = function(v){ return ('0'+v).slice(-2); };
+    return 'QT-' + n.getFullYear() + p(n.getMonth()+1) + p(n.getDate()) + '-' + (Math.floor(Math.random()*900)+100);
+  }
+
+  function makeDateStr() {
+    var n = new Date();
+    return n.getDate() + '/' + ('0'+(n.getMonth()+1)).slice(-2) + '/' + n.getFullYear();
+  }
+
+  /* ════ RENDER SUMMARY PANEL ════ */
+  function renderSummary() {
+    var items = collectItems();
+    var el    = document.getElementById('summaryItems');
+    if (!items.length) {
+      el.innerHTML = '<div class="summary-empty">ยังไม่ได้เลือก option ใด</div>';
+      document.getElementById('totalAmt').innerHTML  = '฿0 <span>บาท</span>';
+      document.getElementById('totalNote').textContent = 'เลือก option ด้านซ้ายเพื่อดูราคา';
+      return;
+    }
+    var total = calcTotal(items);
+    el.innerHTML = items.map(function (i) {
+      var p = i.price === 0 ? 'รวมแล้ว' : '+฿' + i.price.toLocaleString();
+      return '<div class="summary-item"><span class="si-name">' + i.name + '</span><span class="si-price">' + p + '</span></div>';
+    }).join('');
+    document.getElementById('totalAmt').innerHTML  = '฿' + total.toLocaleString() + ' <span>บาท</span>';
+    document.getElementById('totalNote').textContent = '* ราคาโดยประมาณ ขึ้นอยู่กับ scope จริง';
+  }
+
+  /* ════ REFRESH SHOP CARD ════ */
+  function refreshShopCard() {
+    var t = BASE_SHOP + state.shopQty.price;
+    var el = document.getElementById('shopPrice');
+    if (el) el.textContent = '+฿' + t.toLocaleString();
+  }
+
+  /* ════ OPTION CARD EVENTS ════ */
+  document.querySelectorAll('.option-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      var g = card.dataset.group, t = card.dataset.type;
+      var p = parseInt(card.dataset.price, 10), n = card.dataset.name;
+      if (t === 'single') {
+        document.querySelectorAll('[data-group="'+g+'"][data-type="single"]').forEach(function (c) { c.classList.remove('selected'); });
+        card.classList.add('selected');
+        state.single[g] = { name: n, price: p };
+      } else if (t === 'multi') {
+        if (card.classList.contains('selected')) {
+          card.classList.remove('selected');
+          state.multi[g] = getArr(g).filter(function (i) { return i.name !== n; });
+        } else {
+          card.classList.add('selected');
+          getArr(g).push({ name: n, price: p });
+        }
+      } else if (t === 'shop') {
+        var panel = document.getElementById('shopSubPanel');
+        if (card.classList.contains('selected')) {
+          card.classList.remove('selected'); state.shopActive = false; panel.classList.remove('visible');
+        } else {
+          card.classList.add('selected'); state.shopActive = true; panel.classList.add('visible'); refreshShopCard();
+        }
+      }
+      renderSummary();
+    });
+  });
+
+  /* ════ QTY CARD EVENTS ════ */
+  document.querySelectorAll('.qty-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      document.querySelectorAll('.qty-card').forEach(function (c) { c.classList.remove('selected'); });
+      card.classList.add('selected');
+      state.shopQty = { name: card.dataset.qname, price: parseInt(card.dataset.qprice, 10) };
+      refreshShopCard(); renderSummary();
+    });
+  });
+
+  /* ════ RESET ════ */
+  document.getElementById('btnReset').addEventListener('click', function () {
+    state.single = {}; state.multi = {}; state.shopActive = false;
+    state.shopQty = { name: 'ไม่เกิน 50 ชิ้น', price: 0 };
+    document.querySelectorAll('.option-card').forEach(function (c) { c.classList.remove('selected'); });
+    document.querySelectorAll('.qty-card').forEach(function (c) { c.classList.remove('selected'); });
+    var fq = document.querySelector('.qty-card'); if (fq) fq.classList.add('selected');
+    var sp = document.getElementById('shopSubPanel'); if (sp) sp.classList.remove('visible');
+    var spr = document.getElementById('shopPrice'); if (spr) spr.textContent = '+฿12,000';
+    renderSummary();
+  });
+
+  /* ════ OPEN MODAL ════ */
+  function openModal() {
+    var items = collectItems(), total = calcTotal(items);
+    document.getElementById('modalRows').innerHTML = items.length === 0
+      ? '<div style="color:#aaa;font-style:italic;padding:8px 0">ยังไม่ได้เลือก option</div>'
+      : items.map(function (i) {
+          var p = i.price === 0 ? 'รวมแล้ว' : '+฿' + i.price.toLocaleString();
+          return '<div class="q-row"><span>' + i.name + '</span><span>' + p + '</span></div>';
+        }).join('');
+    document.getElementById('modalTotal').textContent = '฿' + total.toLocaleString();
+    // reset to form state
+    document.getElementById('formState').style.display = 'block';
+    document.getElementById('successState').classList.remove('show');
+    document.getElementById('errBanner').classList.remove('show');
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+  document.getElementById('btnOpenModal').addEventListener('click', openModal);
+  document.getElementById('btnSummaryModal').addEventListener('click', openModal);
+  document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+  document.getElementById('btnCloseSuccess').addEventListener('click', closeModal);
+  document.getElementById('modalOverlay').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+
+  /* ════════════════════════════════════
+     BUILD PDF WITH jsPDF
+  ════════════════════════════════════ */
+  function buildPDF(data) {
+    return new Promise(function(resolve, reject) {
+      // สร้าง container
+      var container = document.createElement('div');
+      container.id = 'pdf-content';
+      container.style.cssText = 'position: absolute; left: 0; top: 0; width: 210mm; background: white; padding: 20mm; font-family: Sarabun, Prompt, sans-serif; color: #333; font-size: 14px; line-height: 1.5;';
+      
+      var html = '<div style="font-size: 14px; line-height: 1.6;">';
+      
+      // Header
+      html += '<div style="background: #0a0a0f; color: #f5f2eb; padding: 20px; margin: -20mm -20mm 20px -20mm;">';
+      html += '<table style="width: 100%; border: none;"><tr>';
+      html += '<td style="border: none;"><h1 style="font-family: Prompt, sans-serif; font-size: 24px; margin: 0; font-weight: 800;">REVAMP.STUDIO</h1></td>';
+      html += '<td style="border: none; text-align: right; font-size: 11px; color: #999;">hello@revamp.studio | 086-000-0000</td>';
+      html += '</tr></table></div>';
+      
+      // Red line
+      html += '<div style="background: #e63c2f; height: 3px; margin: 0 -20mm 25px -20mm;"></div>';
+      
+      // Title
+      html += '<h2 style="font-family: Prompt, sans-serif; font-size: 28px; margin: 0 0 8px 0; font-weight: 800; color: #0a0a0f;">';
+      html += 'QUOTATION <span style="color: #e63c2f;">/ ใบเสนอราคา</span></h2>';
+      html += '<div style="color: #6b6b7b; font-size: 12px; margin-bottom: 20px;">เลขที่: ' + data.quoteNo + ' | วันที่: ' + data.date + '</div>';
+      
+      html += '<div style="border-top: 1px solid #d4d0c8; margin: 20px 0;"></div>';
+      
+      // Customer
+      html += '<div style="background: #f5f2eb; padding: 18px; margin-bottom: 25px;">';
+      html += '<div style="color: #6b6b7b; font-size: 11px; font-weight: 600; margin-bottom: 8px; font-family: Prompt, sans-serif;">ข้อมูลลูกค้า / CUSTOMER DETAILS</div>';
+      html += '<div style="font-weight: 700; font-size: 15px; margin-bottom: 8px; font-family: Prompt, sans-serif;">' + data.name;
+      if (data.company !== '-') html += ' — ' + data.company;
+      html += '</div><div style="font-size: 13px; color: #505050;">Email: ' + data.email + ' | Tel: ' + data.phone;
+      if (data.url !== '-') html += '<br>Website: ' + data.url;
+      html += '</div></div>';
+      
+      // Table
+      html += '<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">';
+      html += '<thead><tr style="background: #0a0a0f; color: white;">';
+      html += '<th style="text-align: left; padding: 12px; font-family: Prompt, sans-serif; font-weight: 700; font-size: 12px; border: none;">รายการ / ITEM</th>';
+      html += '<th style="text-align: right; padding: 12px; font-family: Prompt, sans-serif; font-weight: 700; font-size: 12px; width: 150px; border: none;">PRICE (THB)</th>';
+      html += '</tr></thead><tbody>';
+      
+      for (var i = 0; i < data.items.length; i++) {
+        var item = data.items[i];
+        var bg = i % 2 === 0 ? '#ffffff' : '#faf8f3';
+        html += '<tr style="background: ' + bg + ';">';
+        html += '<td style="padding: 10px 12px; border-bottom: 1px solid #f0f0f0; border-left: none; border-right: none; border-top: none; font-size: 13px;">' + item.name + '</td>';
+        html += '<td style="padding: 10px 12px; text-align: right; border-bottom: 1px solid #f0f0f0; border-left: none; border-right: none; border-top: none; font-weight: 700; font-family: Prompt, sans-serif; font-size: 13px;">';
+        html += item.price === 0 ? 'Included' : item.price.toLocaleString();
+        html += '</td></tr>';
+      }
+      html += '</tbody></table>';
+      
+      // Total
+      html += '<div style="background: #e63c2f; color: white; padding: 15px 12px; margin: 20px 0;">';
+      html += '<table style="width: 100%; border: none;"><tr>';
+      html += '<td style="border: none; font-family: Prompt, sans-serif; font-weight: 700; font-size: 15px;">รวมทั้งหมด (โดยประมาณ)</td>';
+      html += '<td style="border: none; text-align: right; font-family: Prompt, sans-serif; font-weight: 700; font-size: 15px;">' + data.total.toLocaleString() + ' THB</td>';
+      html += '</tr></table></div>';
+      
+      // Note
+      html += '<div style="background: #fff8dc; padding: 15px; margin: 15px 0; border-left: 3px solid #c9a84c; font-size: 11px; color: #785a00; line-height: 1.6;">';
+      html += '* ราคาข้างต้นเป็นราคาประมาณการ ราคาจริงขึ้นอยู่กับ scope งานหลังการพูดคุยรายละเอียด<br>';
+      html += '* ใบเสนอราคานี้มีอายุ 30 วันนับจากวันที่ออก</div>';
+      
+      if (data.message !== '-') {
+        html += '<div style="margin: 20px 0;">';
+        html += '<div style="font-weight: 700; margin-bottom: 8px; font-family: Prompt, sans-serif; font-size: 13px;">หมายเหตุ / REMARKS:</div>';
+        html += '<div style="color: #3c3c3c; font-size: 13px; line-height: 1.7;">' + data.message + '</div></div>';
+      }
+      
+      if (data.budget !== '-') {
+        html += '<div style="margin: 15px 0; font-size: 12px; color: #6e6e6e;">งบประมาณที่มี: ' + data.budget + '</div>';
+      }
+      
+      html += '<div style="margin-top: 40px; padding-top: 15px; border-top: 1px solid #d4d0c8; font-size: 10px; color: #a0a0a0; text-align: center;">';
+      html += 'Revamp Studio | hello@revamp.studio | 086-000-0000</div>';
+      html += '</div>';
+      
+      container.innerHTML = html;
+      document.body.appendChild(container);
+      
+      // รอให้ฟอนต์โหลด
+      setTimeout(function() {
+        html2canvas(container, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          width: container.offsetWidth,
+          height: container.offsetHeight
+        }).then(function(canvas) {
+          document.body.removeChild(container);
+          
+          var imgData = canvas.toDataURL('image/png');
+          var imgWidth = 210; // A4 width in mm
+          var imgHeight = (canvas.height * imgWidth) / canvas.width;
+          
+          var jsPDF = window.jspdf.jsPDF;
+          var pdf = new jsPDF('p', 'mm', 'a4');
+          
+          var position = 0;
+          var pageHeight = 297; // A4 height in mm
+          
+          if (imgHeight <= pageHeight) {
+            // ใส่ได้ 1 หน้า
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          } else {
+            // ต้องแบ่งหลายหน้า
+            while (imgHeight > 0) {
+              pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+              imgHeight -= pageHeight;
+              position -= pageHeight;
+              if (imgHeight > 0) {
+                pdf.addPage();
+              }
+            }
+          }
+          
+          resolve(pdf);
+        }).catch(function(error) {
+          if (document.body.contains(container)) {
+            document.body.removeChild(container);
+          }
+          reject(error);
+        });
+      }, 800);
+    });
+  }
+
+  /* ════════════════════════════════════
+     SUBMIT HANDLER
+     Flow: validate → buildPDF → webhook → success + download btn
+  ════════════════════════════════════ */
+  document.getElementById('btnSubmit').addEventListener('click', function () {
+
+    /* ── Collect form values ── */
+    var name    = document.getElementById('fname').value.trim();
+    var company = document.getElementById('fcompany').value.trim();
+    var phone   = document.getElementById('fphone').value.trim();
+    var email   = document.getElementById('femail').value.trim();
+    var url     = document.getElementById('furl').value.trim();
+    var budget  = document.getElementById('fbudget').value;
+    var message = document.getElementById('fmessage').value.trim();
+    var errEl   = document.getElementById('errBanner');
+
+    /* ── Validate ── */
+    errEl.classList.remove('show');
+    if (!name) { errEl.textContent = '⚠ กรุณากรอกชื่อ-นามสกุลค่ะ'; errEl.classList.add('show'); return; }
+    if (!phone) { errEl.textContent = '⚠ กรุณากรอกเบอร์โทรศัพท์ค่ะ'; errEl.classList.add('show'); return; }
+    if (!email || !email.includes('@')) { errEl.textContent = '⚠ กรุณากรอกอีเมลให้ถูกต้องค่ะ'; errEl.classList.add('show'); return; }
+
+    var whURL = localStorage.getItem(WH_KEY) || '';
+    if (!whURL) {
+      errEl.textContent = '⚠ ยังไม่ได้ตั้งค่า Make.com Webhook URL ค่ะ';
+      errEl.classList.add('show'); return;
+    }
+
+    /* ── Loading state ── */
+    var btn = document.getElementById('btnSubmit');
+    var spn = document.getElementById('spinner');
+    var txt = document.getElementById('btnSubmitTxt');
+    btn.disabled = true; spn.style.display = 'block'; txt.textContent = 'กำลังสร้าง PDF...';
+
+    /* ── Step 1: Build PDF (synchronous) ── */
+    var items   = collectItems();
+    var total   = calcTotal(items);
+    var quoteNo = makeQuoteNo();
+    var date    = makeDateStr();
+
+    var pdfData = {
+      quoteNo: quoteNo, date: date,
+      name: name, company: company || '-',
+      phone: phone, email: email,
+      url: url || '-', budget: budget || '-',
+      message: message || '-',
+      items: items, total: total
+    };
+
+    buildPDF(pdfData).then(function(pdf) {
+      pdfDoc     = pdf;
+      pdfQuoteNo = quoteNo;
+
+      /* ── Step 2: Send webhook (async) ── */
+      txt.textContent = 'กำลังส่งข้อมูล...';
+
+      /* ── Build items list for email ── */
+      var itemsHTML = items.map(function (i) {
+        var priceStr = i.price === 0 ? '<span style="color:#888">รวมแล้ว</span>' : '฿' + i.price.toLocaleString();
+        return '<tr style="border-bottom:1px solid #ece9e1">' +
+          '<td style="padding:10px 14px;font-size:13px;color:#333">' + i.name + '</td>' +
+          '<td style="padding:10px 14px;font-size:13px;font-weight:700;color:#0a0a0f;text-align:right">' + priceStr + '</td>' +
+          '</tr>';
+      }).join('');
+
+      var itemsText = items.map(function (i) {
+        var priceStr = i.price === 0 ? 'รวมแล้ว' : '฿' + i.price.toLocaleString();
+        return '• ' + i.name + ' — ' + priceStr;
+      }).join('\n');
+
+      var payload = {
+        quote_number: quoteNo, date: date,
+        customer_name: name, company: company || '-',
+        phone: phone, customer_email: email,
+        owner_email: OWNER_EMAIL,
+        website_url: url || '-', budget: budget || '-',
+        message: message || '-',
+        items: items.map(function (i) {
+          return { name: i.name, price: i.price, price_str: i.price === 0 ? 'รวมแล้ว' : '฿' + i.price.toLocaleString() };
+        }),
+        items_html: itemsHTML,     // ← HTML table rows สำเร็จรูป สำหรับ Make.com
+        items_text: itemsText,     // ← Text version สำหรับ plain email
+        total: total,
+        total_str: '฿' + total.toLocaleString()
+      };
+
+      fetch(whURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+      })
+      .catch(function (err) {
+        /* webhook ล้มเหลว — แจ้งเตือนเบาๆ แต่ยังให้ download PDF ได้ */
+        console.warn('Webhook error:', err.message);
+      })
+      .finally(function () {
+        /* ── Step 3: แสดง success + ปุ่ม download เสมอ (ไม่ว่า webhook จะ ok หรือไม่) ── */
+        btn.disabled = false; spn.style.display = 'none'; txt.textContent = 'ส่งข้อมูล + สร้าง PDF →';
+
+        document.getElementById('formState').style.display   = 'none';
+        document.getElementById('successName').textContent   = name;
+        document.getElementById('successEmail').textContent  = email;
+        document.getElementById('pdfMeta').textContent       = 'เลขที่: ' + quoteNo + '  |  ' + date;
+        document.getElementById('successState').classList.add('show');
+      });
+
+    }).catch(function(e) {
+      errEl.textContent = '⚠ สร้าง PDF ไม่สำเร็จ: ' + e.message;
+      errEl.classList.add('show');
+      btn.disabled = false; spn.style.display = 'none'; txt.textContent = 'ส่งข้อมูล + สร้าง PDF →';
+    });
+
+  });
+
+  /* ════ DOWNLOAD PDF BUTTON ════ */
+  document.getElementById('btnDownloadPDF').addEventListener('click', function () {
+    if (!pdfDoc) return;
+    pdfDoc.save('quotation-' + pdfQuoteNo + '.pdf');
+  });
+
+  /* ════ RESET ALL BUTTON ════ */
+  document.getElementById('btnReset').addEventListener('click', function () {
+    if (!confirm('คุณต้องการล้างการเลือกทั้งหมดใช่ไหม?')) return;
+    document.querySelectorAll('.option-card.selected').forEach(function (el) {
+      el.classList.remove('selected');
+    });
+    document.querySelectorAll('.qty-card.selected').forEach(function (el) {
+      el.classList.remove('selected');
+    });
+    document.querySelectorAll('.shop-sub.visible').forEach(function (el) {
+      el.classList.remove('visible');
+    });
+    updateSummary();
+  });
+
+}); // ปิด DOMContentLoaded
+
+</script>
+</body>
+</html>
