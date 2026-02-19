@@ -133,8 +133,16 @@ header{position:sticky;top:0;z-index:100;background:var(--ink);color:var(--paper
 
 /* FOOTER */
 footer{background:var(--ink);color:var(--paper);padding:40px 5vw;display:flex;align-items:center;justify-content:space-between;border-top:3px solid var(--accent);gap:20px;flex-wrap:wrap}
-.footer-contact{font-size:0.85rem;color:rgba(245,242,235,0.5);line-height:1.8;text-align:right}
+.footer-contact{font-size:0.85rem;color:white;line-height:1.8;text-align:right}
+.footer-contact:hover{color: #cccccc;}
 @media(max-width:600px){.footer-contact{text-align:left}}
+a[href^="mailto:"] {
+    color: white;
+    text-decoration: none; /* เอาเส้นใต้ตัวอักษรออก (ถ้าต้องการ) */
+}
+a[href^="mailto:"]:hover {
+    color: #cccccc; /* สีเทาอ่อนๆ */
+}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(10,10,15,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s}
@@ -146,16 +154,6 @@ footer{background:var(--ink);color:var(--paper);padding:40px 5vw;display:flex;al
 .modal-close{background:none;border:none;color:var(--paper);font-size:1.3rem;cursor:pointer;opacity:0.6;transition:opacity 0.15s}
 .modal-close:hover{opacity:1}
 .modal-body{padding:28px}
-
-/* WEBHOOK BOX */
-.webhook-box{background:#fff8f0;border:2px solid var(--gold);padding:14px 16px;margin-bottom:20px}
-.webhook-title{font-family:'Prompt',sans-serif;font-weight:700;font-size:0.82rem;color:#8a6d1a;margin-bottom:8px}
-.webhook-row{display:flex;gap:8px}
-.webhook-row input{border:1px solid var(--gold);background:#fff;padding:7px 10px;font-size:0.8rem;font-family:'Sarabun',sans-serif;color:var(--ink);outline:none;flex:1;min-width:0}
-.webhook-row input:focus{border-color:var(--accent)}
-.webhook-save{background:var(--gold);color:#fff;border:none;padding:7px 12px;font-family:'Prompt',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap}
-.webhook-status{font-size:0.75rem;margin-top:6px;color:var(--mid)}
-.webhook-status.ok{color:#2d7a2d;font-weight:600}
 
 /* QUOTE SUMMARY IN MODAL */
 .q-summary{background:#fff;border:1px solid var(--border);padding:16px;margin-bottom:20px}
@@ -213,6 +211,21 @@ footer{background:var(--ink);color:var(--paper);padding:40px 5vw;display:flex;al
   .summary-panel{position:static}
   .hero{padding:60px 5vw}
 }
+/* ADD LINE */
+.line-button {
+    background-color: #06C755; /* สีเขียว LINE */
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    font-family: sans-serif;
+    font-weight: bold;
+}
+.line-button:hover {
+  background-color: #05a346;
+}
 </style>
 </head>
 <body>
@@ -232,9 +245,9 @@ footer{background:var(--ink);color:var(--paper);padding:40px 5vw;display:flex;al
 <section class="hero">
   <div class="hero-label">✦ WEB DESIGN &amp; REVAMP SERVICE</div>
   <h1>เปลี่ยนเว็บเก่า<br>ให้<em>กลับมาเจ๋ง</em><br>อีกครั้ง</h1>
-  <p>บริการออกแบบและพัฒนาเว็บไซต์ใหม่ครบวงจร เลือก option ที่ต้องการ ดูราคาได้เลย ไม่ต้องรอ</p>
+  <p>บริการออกแบบและพัฒนาเว็บไซต์ใหม่ครบวงจร เลือก option ที่ต้องการ <nobr>ดูราคาได้เลย ไม่ต้องรอ</nobr></p>
   <div class="hero-stats">
-    <div class="stat"><div class="stat-num">200+</div><div class="stat-label">โปรเจกต์ที่เสร็จ</div></div>
+    <div class="stat"><div class="stat-num">10+</div><div class="stat-label">โปรเจกต์ที่เสร็จ</div></div>
     <div class="stat"><div class="stat-num">7 วัน</div><div class="stat-label">เวลา deliver เฉลี่ย</div></div>
     <div class="stat"><div class="stat-num">98%</div><div class="stat-label">ลูกค้าพอใจ</div></div>
   </div>
@@ -412,10 +425,10 @@ footer{background:var(--ink);color:var(--paper);padding:40px 5vw;display:flex;al
               <div class="opt-price">+฿6,000</div>
               <div class="opt-desc">B2B ส่งคำขอใบเสนอราคา</div>
             </div>
-            <div class="option-card" data-group="ecom" data-type="multi" data-price="9000" data-name="Order Management (+9,000)">
+            <div class="option-card" data-group="ecom" data-type="multi" data-price="12000" data-name="Order Management (+9,000)">
               <div class="opt-check">✓</div>
               <div class="opt-name">Order Management</div>
-              <div class="opt-price">+฿9,000</div>
+              <div class="opt-price">+฿12,000</div>
               <div class="opt-desc">Admin จัดการออเดอร์ + tracking</div>
             </div>
           </div>
@@ -494,14 +507,19 @@ footer{background:var(--ink);color:var(--paper);padding:40px 5vw;display:flex;al
     <div class="why-card"><div class="why-icon">🔍</div><div class="why-title">SEO-Ready</div><div class="why-desc">โค้ดสะอาด loading เร็ว structured data ครบ พร้อม rank ใน Google</div></div>
     <div class="why-card"><div class="why-icon">🛡️</div><div class="why-title">รับประกัน 30 วัน</div><div class="why-desc">หลัง launch แก้ bug ฟรี 30 วัน support ผ่าน Line ตลอด</div></div>
     <div class="why-card"><div class="why-icon">💳</div><div class="why-title">ราคาโปร่งใส</div><div class="why-desc">ราคาชัดเจนตั้งแต่ต้น ไม่มีค่าใช้จ่ายซ่อน</div></div>
-    <div class="why-card"><div class="why-icon">🎓</div><div class="why-title">สอนใช้งานระบบ</div><div class="why-desc">มีคู่มือและ video สอนการใช้ CMS / admin panel ทุกโปรเจกต์</div></div>
+    <div class="why-card"><div class="why-icon">🎓</div><div class="why-title">สอนใช้งานระบบ</div><div class="why-desc">มีคู่มือและ สอนการใช้ ทุกโปรเจกต์</div></div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
   <div class="logo">REVAMP<span>.</span>STUDIO</div>
-  <div class="footer-contact">📞 086-000-0000<br>✉ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="422a272e2e2d02302734232f326c313637262b2d">[email&#160;protected]</a><br>💬 @revampstudio (Line)</div>
+  <div class="footer-contact">📞 094-117-7741<br>✉ <a href="mailto:mr.guyus@gmail.com" class="__cf_email__" data-cfemail="422a272e2e2d02302734232f326c313637262b2d">mr.guyus@gmail.com</a><br>
+     
+  <a href="https://line.me/R/ti/p/@842zfdlr" class="line-button" target="_blank">
+  <span>เพิ่มเพื่อนบน LINE @RevampStudio</span>
+</a>
+  </div>
 </footer>
 
 <!-- ═══════ MODAL ═══════ -->
@@ -515,17 +533,6 @@ footer{background:var(--ink);color:var(--paper);padding:40px 5vw;display:flex;al
 
       <!-- ── FORM STATE ── -->
       <div id="formState">
-
-        <!-- Webhook config (เจ้าของไซต์ตั้งครั้งเดียว) -->
-        <div class="webhook-box">
-          <div class="webhook-title">⚙️ Make.com Webhook URL <span style="font-weight:400;color:#aaa">(ตั้งค่าครั้งเดียว)</span></div>
-          <div class="webhook-row">
-            <input type="url" id="webhookInput" placeholder="https://hook.eu1.make.com/xxxxxxxx">
-            <button class="webhook-save" id="btnSaveWebhook">บันทึก</button>
-          </div>
-          <div class="webhook-status" id="webhookStatus">ยังไม่ได้ตั้งค่า</div>
-        </div>
-
         <!-- Quote summary -->
         <div class="q-summary">
           <div class="q-summary-title">📋 รายการที่เลือก</div>
@@ -602,8 +609,8 @@ footer{background:var(--ink);color:var(--paper);padding:40px 5vw;display:flex;al
 document.addEventListener('DOMContentLoaded', function () {
 
   /* ════ CONFIG ════ */
-  var OWNER_EMAIL = 'mr.guyus@gmail.com'; // อีเมลเจ้าของ (CC)
-  var WH_KEY      = 'revamp_wh_v3';        // localStorage key
+  var OWNER_EMAIL  = 'mr.guyus@gmail.com';  // อีเมลเจ้าของ (CC)
+  var WEBHOOK_URL  = 'https://hook.eu1.make.com/u648dab3m7cb6hjnntcykmpbm11c162k';  // ← ใส่ Make.com Webhook URL ตรงนี้
 
   /* ════ STATE ════ */
   var BASE_SHOP = 12000;
@@ -614,24 +621,6 @@ document.addEventListener('DOMContentLoaded', function () {
   };
   var pdfDoc     = null; // jsPDF instance — เก็บไว้ให้ download
   var pdfQuoteNo = '';   // เลขที่ใบเสนอราคา
-
-  /* ════ WEBHOOK SETUP ════ */
-  var whInput  = document.getElementById('webhookInput');
-  var whStatus = document.getElementById('webhookStatus');
-  var savedWH  = localStorage.getItem(WH_KEY) || '';
-  if (savedWH) {
-    whInput.value = savedWH;
-    whStatus.textContent = '✓ พร้อมใช้งาน';
-    whStatus.className = 'webhook-status ok';
-  }
-  document.getElementById('btnSaveWebhook').addEventListener('click', function () {
-    var u = whInput.value.trim();
-    if (!u.startsWith('http')) { alert('URL ไม่ถูกต้อง'); return; }
-    localStorage.setItem(WH_KEY, u);
-    savedWH = u;
-    whStatus.textContent = '✓ บันทึกแล้ว พร้อมใช้งาน';
-    whStatus.className = 'webhook-status ok';
-  });
 
   /* ════ HELPERS ════ */
   function getArr(g) { if (!state.multi[g]) state.multi[g] = []; return state.multi[g]; }
@@ -780,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function () {
       html += '<div style="background: #0a0a0f; color: #f5f2eb; padding: 20px; margin: -20mm -20mm 20px -20mm;">';
       html += '<table style="width: 100%; border: none;"><tr>';
       html += '<td style="border: none;"><h1 style="font-family: Prompt, sans-serif; font-size: 24px; margin: 0; font-weight: 800;">REVAMP.STUDIO</h1></td>';
-      html += '<td style="border: none; text-align: right; font-size: 11px; color: #999;">hello@revamp.studio | 086-000-0000</td>';
+      html += '<td style="border: none; text-align: right; font-size: 11px; color: #999;">mr.guyus@gmail.com | 094-117-7741</td>';
       html += '</tr></table></div>';
       
       // Red line
@@ -843,7 +832,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       
       html += '<div style="margin-top: 40px; padding-top: 15px; border-top: 1px solid #d4d0c8; font-size: 10px; color: #a0a0a0; text-align: center;">';
-      html += 'Revamp Studio | hello@revamp.studio | 086-000-0000</div>';
+      html += 'Revamp Studio | mr.guyus@gmail.com | 094-117-7741</div>';
       html += '</div>';
       
       container.innerHTML = html;
@@ -919,9 +908,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!phone) { errEl.textContent = '⚠ กรุณากรอกเบอร์โทรศัพท์ค่ะ'; errEl.classList.add('show'); return; }
     if (!email || !email.includes('@')) { errEl.textContent = '⚠ กรุณากรอกอีเมลให้ถูกต้องค่ะ'; errEl.classList.add('show'); return; }
 
-    var whURL = localStorage.getItem(WH_KEY) || '';
-    if (!whURL) {
-      errEl.textContent = '⚠ ยังไม่ได้ตั้งค่า Make.com Webhook URL ค่ะ';
+    if (!WEBHOOK_URL || WEBHOOK_URL === 'YOUR_MAKE_COM_WEBHOOK_URL_HERE') {
+      errEl.textContent = '⚠ ยังไม่ได้ตั้งค่า Webhook URL ใน code ค่ะ — กรุณาติดต่อเจ้าของเว็บไซต์';
       errEl.classList.add('show'); return;
     }
 
@@ -983,7 +971,7 @@ document.addEventListener('DOMContentLoaded', function () {
         total_str: '฿' + total.toLocaleString()
       };
 
-      fetch(whURL, {
+      fetch(WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
