@@ -275,6 +275,12 @@ a[href^="mailto:"]:hover {
 </div>
 <button id="toggleConsole" style="position: fixed; top: 70px; right: 320px; background: #06C755; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 10px; z-index: 1001; cursor: pointer;">Console</button>
 
+<!-- LIFF STATUS DISPLAY -->
+<div id="liffStatus" style="position: fixed; top: 70px; left: 10px; background: rgba(0,0,0,0.8); color: white; font-family: monospace; font-size: 10px; padding: 8px; border-radius: 5px; z-index: 1000; max-width: 200px;">
+  <div style="color: #06C755; font-weight: bold; margin-bottom: 3px;">📱 LIFF STATUS</div>
+  <div id="liffStatusContent">⏳ กำลังโหลด...</div>
+</div>
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-label">✦ WEB DESIGN &amp; REVAMP SERVICE</div>
@@ -1253,9 +1259,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // Initialize LIFF
   function initLIFF() {
     console.log('Starting LIFF initialization...');
+    updateLiffStatus('🔄 Init LIFF...');
     
     if (typeof liff === 'undefined') {
       console.error('LIFF SDK not loaded');
+      updateLiffStatus('❌ SDK not loaded');
       return;
     }
     
@@ -1266,6 +1274,7 @@ document.addEventListener('DOMContentLoaded', function () {
       liffReady = true;
       isInLINE = liff.isInClient();
       console.log('LIFF initialized successfully, in LINE:', isInLINE);
+      updateLiffStatus('✅ LIFF OK, inLINE:' + isInLINE);
       
       // Update UI for LINE users
       if (isInLINE) {
@@ -1284,6 +1293,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .catch((err) => {
       console.error('LIFF initialization failed:', err);
+      updateLiffStatus('❌ Init failed: ' + err.message);
       liffReady = false;
       isInLINE = false;
     });
@@ -1291,6 +1301,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Initialize LIFF when page loads
   document.addEventListener('DOMContentLoaded', function() {
+    // LIFF status display
+    const liffStatusContent = document.getElementById('liffStatusContent');
+    function updateLiffStatus(text) {
+      if (liffStatusContent) {
+        liffStatusContent.innerHTML += '<br>' + text;
+      }
+    }
+    
     // Console display functions
     const consoleDisplay = document.getElementById('consoleDisplay');
     const consoleContent = document.getElementById('consoleContent');
@@ -1300,28 +1318,32 @@ document.addEventListener('DOMContentLoaded', function () {
     const originalLog = console.log;
     console.log = function(...args) {
       originalLog.apply(console, args);
+      const msg = args.join(' ');
       if (consoleContent) {
         const logEntry = document.createElement('div');
         logEntry.style.marginBottom = '3px';
         logEntry.style.color = '#ffffff';
-        logEntry.textContent = args.join(' ');
+        logEntry.textContent = msg;
         consoleContent.appendChild(logEntry);
         consoleDisplay.scrollTop = consoleDisplay.scrollHeight;
       }
+      updateLiffStatus('✓ ' + msg);
     };
     
     // Override console.error to show on screen
     const originalError = console.error;
     console.error = function(...args) {
       originalError.apply(console, args);
+      const msg = args.join(' ');
       if (consoleContent) {
         const logEntry = document.createElement('div');
         logEntry.style.marginBottom = '3px';
         logEntry.style.color = '#ff6b35';
-        logEntry.textContent = '❌ ' + args.join(' ');
+        logEntry.textContent = '❌ ' + msg;
         consoleContent.appendChild(logEntry);
         consoleDisplay.scrollTop = consoleDisplay.scrollHeight;
       }
+      updateLiffStatus('<span style="color:#ff6b35">❌ ' + msg.substring(0, 50) + '</span>');
     };
     
     // Toggle console display
@@ -1368,6 +1390,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ════ TEST LIFF OPEN WINDOW BUTTON ════ */
   document.getElementById('btnTestLIFF').addEventListener('click', function() {
+    updateLiffStatus('🖱️ Test button clicked');
     console.log('=== TEST LIFF BUTTON CLICKED ===');
     console.log('LIFF Ready:', liffReady);
     console.log('Is in LINE:', isInLINE);
@@ -1375,12 +1398,14 @@ document.addEventListener('DOMContentLoaded', function () {
     
     if (typeof liff === 'undefined') {
       console.error('LIFF SDK not loaded!');
+      updateLiffStatus('❌ SDK not loaded');
       alert('❌ LIFF SDK ไม่ถูกโหลด กรุณารีเฟรชหน้า');
       return;
     }
     
     if (!liffReady) {
       console.error('LIFF not ready!');
+      updateLiffStatus('❌ LIFF not ready');
       alert('❌ LIFF ยังไม่พร้อมใช้งาน กรุณารอสักครู่');
       return;
     }
@@ -1390,12 +1415,15 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       inLineClient = liff.isInClient();
       console.log('liff.isInClient():', inLineClient);
+      updateLiffStatus('isInClient: ' + inLineClient);
     } catch (e) {
       console.error('Error checking isInClient:', e);
+      updateLiffStatus('❌ isInClient error');
     }
     
     console.log('Opening external browser...');
     console.log('Current URL:', window.location.href);
+    updateLiffStatus('🔄 Opening window...');
     
     // Try openWindow with better error handling
     try {
@@ -1405,25 +1433,29 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       
       console.log('openWindow returned:', result);
+      updateLiffStatus('openWindow called');
       
       // Handle promise if returned
       if (result && typeof result.then === 'function') {
         result.then(function() {
           console.log('✅ External browser opened successfully');
+          updateLiffStatus('✅ Window opened!');
           alert('✅ เปิด External Browser สำเร็จ!');
         }).catch(function(err) {
           console.error('❌ openWindow promise error:', err);
+          updateLiffStatus('❌ Promise error: ' + err.message);
           alert('❌ ไม่สามารถเปิดได้: ' + (err.message || err));
         });
       } else {
         console.log('openWindow called (no promise returned)');
+        updateLiffStatus('ℹ️ No promise returned');
         alert('ℹ️ กำลังเปิด External Browser...');
       }
     } catch (err) {
       console.error('❌ Exception calling openWindow:', err);
       console.error('Error name:', err.name);
       console.error('Error message:', err.message);
-      console.error('Error stack:', err.stack);
+      updateLiffStatus('❌ Exception: ' + err.name);
       alert('❌ เกิดข้อผิดพลาด: ' + err.name + ': ' + err.message);
     }
   });
