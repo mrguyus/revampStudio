@@ -1368,37 +1368,63 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ════ TEST LIFF OPEN WINDOW BUTTON ════ */
   document.getElementById('btnTestLIFF').addEventListener('click', function() {
-    console.log('Test LIFF button clicked');
+    console.log('=== TEST LIFF BUTTON CLICKED ===');
     console.log('LIFF Ready:', liffReady);
     console.log('Is in LINE:', isInLINE);
+    console.log('liff object exists:', typeof liff !== 'undefined');
+    
+    if (typeof liff === 'undefined') {
+      console.error('LIFF SDK not loaded!');
+      alert('❌ LIFF SDK ไม่ถูกโหลด กรุณารีเฟรชหน้า');
+      return;
+    }
     
     if (!liffReady) {
+      console.error('LIFF not ready!');
       alert('❌ LIFF ยังไม่พร้อมใช้งาน กรุณารอสักครู่');
       return;
     }
     
-    if (!isInLINE) {
-      alert('ℹ️ คุณไม่ได้อยู่ใน LINE อยู่แล้ว ไม่ต้องเปิด External Browser');
-      return;
+    // Try to check if in LINE
+    let inLineClient = false;
+    try {
+      inLineClient = liff.isInClient();
+      console.log('liff.isInClient():', inLineClient);
+    } catch (e) {
+      console.error('Error checking isInClient:', e);
     }
     
+    console.log('Opening external browser...');
+    console.log('Current URL:', window.location.href);
+    
+    // Try openWindow with better error handling
     try {
-      const currentUrl = window.location.href;
-      console.log('Opening external browser with URL:', currentUrl);
-      
-      liff.openWindow({
-        url: currentUrl,
+      const result = liff.openWindow({
+        url: window.location.href,
         external: true
-      }).then(() => {
-        console.log('✅ External browser opened successfully');
-        alert('✅ เปิด External Browser สำเร็จแล้ว!');
-      }).catch((err) => {
-        console.error('❌ Failed to open external browser:', err);
-        alert('❌ ไม่สามารถเปิด External Browser ได้: ' + err.message);
       });
+      
+      console.log('openWindow returned:', result);
+      
+      // Handle promise if returned
+      if (result && typeof result.then === 'function') {
+        result.then(function() {
+          console.log('✅ External browser opened successfully');
+          alert('✅ เปิด External Browser สำเร็จ!');
+        }).catch(function(err) {
+          console.error('❌ openWindow promise error:', err);
+          alert('❌ ไม่สามารถเปิดได้: ' + (err.message || err));
+        });
+      } else {
+        console.log('openWindow called (no promise returned)');
+        alert('ℹ️ กำลังเปิด External Browser...');
+      }
     } catch (err) {
-      console.error('❌ Error calling liff.openWindow:', err);
-      alert('❌ เกิดข้อผิดพลาด: ' + err.message);
+      console.error('❌ Exception calling openWindow:', err);
+      console.error('Error name:', err.name);
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
+      alert('❌ เกิดข้อผิดพลาด: ' + err.name + ': ' + err.message);
     }
   });
 
@@ -1415,27 +1441,37 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     
-    if (isInLINE && liffReady) {
+    if (isInLINE && liffReady && typeof liff !== 'undefined') {
       // If in LINE, open external browser
-      console.log('Opening external browser...');
+      console.log('Opening external browser for PDF download...');
+      console.log('liff.isInClient():', liff.isInClient());
+      
       try {
-        const currentUrl = window.location.href;
-        liff.openWindow({
-          url: currentUrl,
+        const result = liff.openWindow({
+          url: window.location.href,
           external: true
-        }).then(() => {
-          console.log('External browser opened successfully');
-        }).catch((err) => {
-          console.error('Failed to open external browser:', err);
-          alert('❌ ไม่สามารถเปิด Browser ได้ กรุณาลองใหม่อีกครั้ง');
         });
+        
+        console.log('openWindow result:', result);
+        
+        if (result && typeof result.then === 'function') {
+          result.then(function() {
+            console.log('External browser opened for PDF');
+          }).catch(function(err) {
+            console.error('Failed to open external browser:', err);
+            alert('❌ ไม่สามารถเปิด Browser ได้: ' + (err.message || err));
+          });
+        } else {
+          alert('ℹ️ กำลังเปิดใน External Browser...');
+        }
       } catch (err) {
         console.error('Error calling liff.openWindow:', err);
-        alert('❌ เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+        console.error('Error details:', err.name, err.message);
+        alert('❌ เกิดข้อผิดพลาด: ' + err.name + ': ' + err.message);
       }
     } else {
       // Normal download
-      console.log('Starting normal download...');
+      console.log('Starting normal PDF download...');
       try {
         pdfDoc.save('quotation-' + pdfQuoteNo + '.pdf');
         setTimeout(function() { closeModal(); }, 500);
