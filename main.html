@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://static.line-scdn.net/liff/edge/2/LineSDK.js"></script>
 <style>
 :root{--ink:#0a0a0f;--paper:#f5f2eb;--cream:#faf8f3;--accent:#e63c2f;--accent2:#ff6b35;--gold:#c9a84c;--mid:#6b6b7b;--border:#d4d0c8}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -788,9 +789,9 @@ a[href^="mailto:"]:hover {
           <h5>ใบเสนอราคาของคุณพร้อมแล้ว</h5>
           <div class="pdf-box-meta" id="pdfMeta"></div>
           <button class="btn-download-pdf" id="btnDownloadPDF">
-            ⬇&nbsp; Download ใบเสนอราคา PDF
+            <span id="downloadText"></span>⬇&nbsp; Download ใบเสนอราคา PDF</span>
           </button>
-          <div class="pdf-hint"></div>
+          <div class="pdf-hint" id="pdfHint"></div>
         </div>
 
         <button class="btn-close-success" id="btnCloseSuccess">ปิดหน้าต่าง</button>
@@ -1235,11 +1236,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
   });
 
+  /* ════ LIFF INITIALIZATION ════ */
+  let isInLINE = false;
+  
+  // Initialize LIFF
+  function initLIFF() {
+    liff.init({
+      liffId: '2009179980-z5myqDdb'
+    })
+    .then(() => {
+      isInLINE = liff.isInClient();
+      console.log('LIFF initialized, in LINE:', isInLINE);
+      
+      // Update UI for LINE users
+      if (isInLINE) {
+        const downloadText = document.getElementById('downloadText');
+        const pdfHint = document.getElementById('pdfHint');
+        if (downloadText) {
+          downloadText.innerHTML = '🌐 เปิดใน Browser เพื่อ Download';
+        }
+        if (pdfHint) {
+          pdfHint.innerHTML = '⚠️ ไม่สามารถ Download ใน LINE ได้ กรุณาเปิดใน Browser';
+          pdfHint.style.color = '#ff6b35';
+          pdfHint.style.fontSize = '0.85rem';
+          pdfHint.style.marginTop = '8px';
+        }
+      }
+    })
+    .catch((err) => {
+      console.error('LIFF initialization failed', err);
+      isInLINE = false;
+    });
+  }
+
+  // Initialize LIFF when page loads
+  if (typeof liff !== 'undefined') {
+    initLIFF();
+  }
+
   /* ════ DOWNLOAD PDF BUTTON ════ */
   document.getElementById('btnDownloadPDF').addEventListener('click', function () {
     if (!pdfDoc) return;
-    pdfDoc.save('quotation-' + pdfQuoteNo + '.pdf');
-    setTimeout(function() { closeModal(); }, 500);
+    
+    if (isInLINE) {
+      // If in LINE, open external browser
+      const currentUrl = window.location.href;
+      liff.openWindow({
+        url: currentUrl,
+        external: true
+      });
+    } else {
+      // Normal download
+      pdfDoc.save('quotation-' + pdfQuoteNo + '.pdf');
+      setTimeout(function() { closeModal(); }, 500);
+    }
   });
 
   /* ════ RESET ALL BUTTON ════ */
