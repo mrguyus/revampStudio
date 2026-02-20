@@ -1263,6 +1263,48 @@ document.addEventListener('DOMContentLoaded', function () {
       liffStatusContent.innerHTML += '<br>' + text;
     }
   }
+
+  function openExternalBrowser(url, label) {
+    const targetUrl = url || window.location.href;
+    const tag = label ? '[' + label + '] ' : '';
+    updateLiffStatus(tag + 'openExternalBrowser called');
+    updateLiffStatus(tag + 'url: ' + targetUrl);
+
+    if (typeof liff === 'undefined') {
+      updateLiffStatus(tag + '❌ liff is undefined');
+      try { window.open(targetUrl, '_blank'); } catch (e) {}
+      return;
+    }
+    if (!liffReady) {
+      updateLiffStatus(tag + '❌ liffReady=false');
+      try { window.open(targetUrl, '_blank'); } catch (e) {}
+      return;
+    }
+
+    let inClient = false;
+    try {
+      inClient = liff.isInClient();
+      updateLiffStatus(tag + 'isInClient: ' + inClient);
+    } catch (e) {
+      updateLiffStatus(tag + '❌ isInClient error');
+    }
+
+    try {
+      const result = liff.openWindow({ url: targetUrl, external: true });
+      updateLiffStatus(tag + 'openWindow called');
+      if (result && typeof result.then === 'function') {
+        result.then(function() {
+          updateLiffStatus(tag + '✅ openWindow resolved');
+        }).catch(function(err) {
+          updateLiffStatus(tag + '❌ openWindow rejected: ' + (err && err.message ? err.message : err));
+        });
+      } else {
+        updateLiffStatus(tag + 'ℹ️ openWindow no promise');
+      }
+    } catch (err) {
+      updateLiffStatus(tag + '❌ openWindow exception: ' + (err && err.name ? err.name : 'Error') + ' ' + (err && err.message ? err.message : err));
+    }
+  }
   
   // Initialize LIFF
   function initLIFF() {
@@ -1283,6 +1325,16 @@ document.addEventListener('DOMContentLoaded', function () {
       isInLINE = liff.isInClient();
       console.log('LIFF initialized successfully, in LINE:', isInLINE);
       updateLiffStatus('✅ LIFF OK, inLINE:' + isInLINE);
+
+      try {
+        const ctx = liff.getContext();
+        const ctxStr = JSON.stringify(ctx);
+        console.log('LIFF context:', ctxStr);
+        updateLiffStatus('context: ' + ctxStr);
+      } catch (e) {
+        console.error('LIFF getContext failed:', e);
+        updateLiffStatus('❌ getContext failed');
+      }
       
       // Update UI for LINE users
       if (isInLINE) {
@@ -1435,43 +1487,7 @@ document.addEventListener('DOMContentLoaded', function () {
       updateLiffStatus('❌ isInClient error');
     }
     
-    console.log('Opening external browser...');
-    console.log('Current URL:', window.location.href);
-    updateLiffStatus('🔄 Opening window...');
-    
-    // Try openWindow with better error handling
-    try {
-      const result = liff.openWindow({
-        url: window.location.href,
-        external: true
-      });
-      
-      console.log('openWindow returned:', result);
-      updateLiffStatus('openWindow called');
-      
-      // Handle promise if returned
-      if (result && typeof result.then === 'function') {
-        result.then(function() {
-          console.log('✅ External browser opened successfully');
-          updateLiffStatus('✅ Window opened!');
-          alert('✅ เปิด External Browser สำเร็จ!');
-        }).catch(function(err) {
-          console.error('❌ openWindow promise error:', err);
-          updateLiffStatus('❌ Promise error: ' + err.message);
-          alert('❌ ไม่สามารถเปิดได้: ' + (err.message || err));
-        });
-      } else {
-        console.log('openWindow called (no promise returned)');
-        updateLiffStatus('ℹ️ No promise returned');
-        alert('ℹ️ กำลังเปิด External Browser...');
-      }
-    } catch (err) {
-      console.error('❌ Exception calling openWindow:', err);
-      console.error('Error name:', err.name);
-      console.error('Error message:', err.message);
-      updateLiffStatus('❌ Exception: ' + err.name);
-      alert('❌ เกิดข้อผิดพลาด: ' + err.name + ': ' + err.message);
-    }
+    openExternalBrowser(window.location.href, 'TEST');
   });
 
   /* ════ DOWNLOAD PDF BUTTON ════ */
@@ -1488,33 +1504,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     if (isInLINE && liffReady && typeof liff !== 'undefined') {
-      // If in LINE, open external browser
-      console.log('Opening external browser for PDF download...');
-      console.log('liff.isInClient():', liff.isInClient());
-      
-      try {
-        const result = liff.openWindow({
-          url: window.location.href,
-          external: true
-        });
-        
-        console.log('openWindow result:', result);
-        
-        if (result && typeof result.then === 'function') {
-          result.then(function() {
-            console.log('External browser opened for PDF');
-          }).catch(function(err) {
-            console.error('Failed to open external browser:', err);
-            alert('❌ ไม่สามารถเปิด Browser ได้: ' + (err.message || err));
-          });
-        } else {
-          alert('ℹ️ กำลังเปิดใน External Browser...');
-        }
-      } catch (err) {
-        console.error('Error calling liff.openWindow:', err);
-        console.error('Error details:', err.name, err.message);
-        alert('❌ เกิดข้อผิดพลาด: ' + err.name + ': ' + err.message);
-      }
+      openExternalBrowser(window.location.href, 'PDF');
     } else {
       // Normal download
       console.log('Starting normal PDF download...');
