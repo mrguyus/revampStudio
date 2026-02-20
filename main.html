@@ -268,6 +268,13 @@ a[href^="mailto:"]:hover {
   </div>
 </header>
 
+<!-- CONSOLE DEBUG DISPLAY -->
+<div id="consoleDisplay" style="position: fixed; top: 70px; right: 10px; width: 300px; max-height: 200px; background: rgba(0,0,0,0.8); color: white; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 5px; overflow-y: auto; z-index: 1000; display: none;">
+  <div style="color: #06C755; font-weight: bold; margin-bottom: 5px;">🔍 CONSOLE LOG</div>
+  <div id="consoleContent"></div>
+</div>
+<button id="toggleConsole" style="position: fixed; top: 70px; right: 320px; background: #06C755; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 10px; z-index: 1001; cursor: pointer;">Console</button>
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-label">✦ WEB DESIGN &amp; REVAMP SERVICE</div>
