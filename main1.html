@@ -263,9 +263,23 @@ a[href^="mailto:"]:hover {
 <header>
   <div class="logo">REVAMP<span>.</span>STUDIO</div>
   <div style="display: flex; gap: 10px; align-items: center;">
+    <button class="nav-cta" id="btnTestLIFF" style="background: #06C755; font-size: 0.75rem; padding: 6px 12px;">🌐 Test External Browser</button>
     <button class="nav-cta" id="btnOpenModal">ขอใบเสนอราคา →</button>
   </div>
 </header>
+
+<!-- CONSOLE DEBUG DISPLAY -->
+<div id="consoleDisplay" style="position: fixed; top: 70px; right: 10px; width: 300px; max-height: 200px; background: rgba(0,0,0,0.8); color: white; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 5px; overflow-y: auto; z-index: 1000; display: none;">
+  <div style="color: #06C755; font-weight: bold; margin-bottom: 5px;">🔍 CONSOLE LOG</div>
+  <div id="consoleContent"></div>
+</div>
+<button id="toggleConsole" style="position: fixed; top: 70px; right: 320px; background: #06C755; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 10px; z-index: 1001; cursor: pointer;">Console</button>
+
+<!-- LIFF STATUS DISPLAY -->
+<div id="liffStatus" style="position: fixed; top: 70px; left: 10px; background: rgba(0,0,0,0.8); color: white; font-family: monospace; font-size: 10px; padding: 8px; border-radius: 5px; z-index: 1000; max-width: 200px;">
+  <div style="color: #06C755; font-weight: bold; margin-bottom: 3px;">📱 LIFF STATUS</div>
+  <div id="liffStatusContent">⏳ กำลังโหลด...</div>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -713,7 +727,7 @@ a[href^="mailto:"]:hover {
 <footer>
   <div class="logo">REVAMP<span>.</span>STUDIO</div>
   <div class="footer-contact">📞 094-117-7741<br>
-    ✉ <a href="/cdn-cgi/l/email-protection#84e9f6aae3f1fdf1f7c4e3e9e5ede8aae7ebe9" class="__cf_email__" data-cfemail="422a272e2e2d02302734232f326c313637262b2d"><span class="__cf_email__" data-cfemail="82eff0ace5f7fbf7f1c2e5efe3ebeeace1edef">[email&#160;protected]</span></a><br>
+    ✉ <a href="mailto:mr.guyus@gmail.com" class="__cf_email__" data-cfemail="422a272e2e2d02302734232f326c313637262b2d">mr.guyus@gmail.com</a><br>
   <a href="https://line.me/R/ti/p/@842zfdlr" class="line-button" target="_blank">
   <span>เพิ่มเพื่อนบน LINE @RevampStudio</span>
 </a>
@@ -803,7 +817,7 @@ a[href^="mailto:"]:hover {
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -1238,197 +1252,267 @@ document.addEventListener('DOMContentLoaded', function () {
 
   });
 
-  /* ════════════════════════════════════════════════════════
-     LIFF — Production Version
-     Flow (ใน LINE):
-       1. liff.init()
-       2. getFriendship() → ถ้า !friend → เปิด Add OA ก่อน
-       3. uploadPDFToCloudinary() → ได้ URL จริง
-       4. liff.openWindow(url, external:true) → download ใน external browser
-     Flow (นอก LINE): pdfDoc.save() ปกติ
-  ════════════════════════════════════════════════════════ */
-
-  /* ─── LIFF CONFIG ─── */
-  const LIFF_ID       = '2009179980-z5myqDdb';
-  const LINE_OA_ID    = '@842zfdlr';  // ใช้สำหรับ Add Friend URL
-  const LINE_ADD_URL  = 'https://line.me/R/ti/p/' + LINE_OA_ID;
-
-  /* ─── Cloudinary CONFIG (free tier, upload preset = unsigned) ─── */
-  /* สร้าง unsigned upload preset ใน Cloudinary dashboard ชื่อ "revamp_pdf" */
-  const CLOUDINARY_CLOUD = 'dov88mfne';       // ← ใส่ cloud name ของคุณ
-  const CLOUDINARY_PRESET = 'revamp_pdf';            // ← ชื่อ unsigned upload preset
-
-  let isInLINE  = false;
+  /* ════ LIFF INITIALIZATION ════ */
+  let isInLINE = false;
   let liffReady = false;
-
-  /* ─────────────────────────────────────────
-     uploadPDFToCloudinary
-     รับ jsPDF object → upload → return URL
-  ───────────────────────────────────────── */
-  function uploadPDFToCloudinary(pdf, filename) {
-    return new Promise(function(resolve, reject) {
-      // แปลง jsPDF เป็น Blob
-      const pdfBlob = pdf.output('blob');
-      const formData = new FormData();
-      formData.append('file', pdfBlob, filename);
-      formData.append('upload_preset', CLOUDINARY_PRESET);
-      formData.append('resource_type', 'raw');
-      formData.append('public_id', filename.replace('.pdf', '') + '_' + Date.now());
-
-      const uploadUrl = 'https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/raw/upload';
-
-      fetch(uploadUrl, { method: 'POST', body: formData })
-        .then(function(res) {
-          if (!res.ok) throw new Error('Cloudinary HTTP ' + res.status);
-          return res.json();
-        })
-        .then(function(data) {
-          if (data.secure_url) {
-            resolve(data.secure_url);
-          } else {
-            reject(new Error('No URL in Cloudinary response'));
-          }
-        })
-        .catch(reject);
-    });
-  }
-
-  /* ─────────────────────────────────────────
-     checkFriendshipAndDownload
-     เรียกหลัง PDF พร้อมแล้ว (อยู่ใน LINE เท่านั้น)
-     - ถ้ายังไม่ follow → เปิด Add OA → รอ user กลับมากด Download อีกที
-     - ถ้า follow แล้ว → upload → openWindow external
-  ───────────────────────────────────────── */
-  function checkFriendshipAndDownload(pdf, filename, btnEl) {
-    // UI: loading
-    btnEl.disabled = true;
-    btnEl.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px"></span> กำลังตรวจสอบ...';
-
-    liff.getFriendship()
-      .then(function(data) {
-        if (!data.friendFlag) {
-          /* ── ยังไม่ follow → เปิด Add OA (ใน LINE ไม่ต้อง external) ── */
-          btnEl.disabled = false;
-          btnEl.innerHTML = '➕ เพิ่มเพื่อน LINE OA ก่อน Download';
-
-          // แสดง hint
-          const hint = document.getElementById('pdfHint');
-          if (hint) {
-            hint.innerHTML = '⚠️ กรุณากด <strong>"เพิ่มเพื่อน"</strong> ก่อน แล้วกลับมากด Download อีกครั้งค่ะ';
-            hint.style.color = '#ff6b35';
-          }
-
-          // เปิดหน้า Add Friend ใน LINE (ไม่ใช่ external)
-          liff.openWindow({ url: LINE_ADD_URL, external: false });
-
-          // เปลี่ยนปุ่มกลับเป็น download เพื่อให้ user กดได้หลัง add
-          setTimeout(function() {
-            btnEl.innerHTML = '⬇ Download ใบเสนอราคา PDF';
-          }, 2000);
-
-        } else {
-          /* ── Follow แล้ว → upload PDF → openWindow external ── */
-          btnEl.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px"></span> กำลังเตรียม PDF...';
-
-          uploadPDFToCloudinary(pdf, filename)
-            .then(function(pdfUrl) {
-              btnEl.disabled = false;
-              btnEl.innerHTML = '🌐 เปิด Browser เพื่อ Download';
-
-              const hint = document.getElementById('pdfHint');
-              if (hint) {
-                hint.innerHTML = '✅ PDF พร้อมแล้ว! Browser จะเปิดขึ้นโดยอัตโนมัติค่ะ';
-                hint.style.color = '#06C755';
-              }
-
-              // เปิด external browser ด้วย URL จริงจาก Cloudinary
-              liff.openWindow({ url: pdfUrl, external: true });
-            })
-            .catch(function(err) {
-              btnEl.disabled = false;
-              btnEl.innerHTML = '⬇ Download ใบเสนอราคา PDF';
-              const hint = document.getElementById('pdfHint');
-              if (hint) {
-                hint.innerHTML = '❌ เกิดข้อผิดพลาด: ' + err.message + ' — กรุณาลองใหม่';
-                hint.style.color = '#e63c2f';
-              }
-            });
-        }
-      })
-      .catch(function(err) {
-        /* getFriendship error — fallback: เปิด Add URL แล้ว retry */
-        btnEl.disabled = false;
-        btnEl.innerHTML = '⬇ Download ใบเสนอราคา PDF';
-        const hint = document.getElementById('pdfHint');
-        if (hint) {
-          hint.innerHTML = '⚠️ ไม่สามารถตรวจสอบสถานะได้ กรุณาลองใหม่ค่ะ';
-          hint.style.color = '#ff6b35';
-        }
-      });
-  }
-
-  /* ─────────────────────────────────────────
-     initLIFF — เรียกตอน DOMContentLoaded
-  ───────────────────────────────────────── */
-  function initLIFF() {
-    if (typeof liff === 'undefined') return;
-
-    liff.init({ liffId: LIFF_ID })
-      .then(function() {
-        liffReady = true;
-        isInLINE  = liff.isInClient();
-
-        // ถ้าอยู่ใน LINE → ปรับ UI ปุ่ม download ให้รู้ว่าจะมี flow พิเศษ
-        if (isInLINE) {
-          const hint = document.getElementById('pdfHint');
-          if (hint) {
-            hint.innerHTML = '📱 อยู่ใน LINE — ระบบจะเปิด Browser ให้ download อัตโนมัติค่ะ';
-            hint.style.color = 'rgba(245,242,235,0.6)';
-          }
-        }
-      })
-      .catch(function() {
-        liffReady = false;
-        isInLINE  = false;
-      });
-  }
-
-  /* ── รอ LIFF SDK โหลด แล้ว init ── */
-  (function waitForLIFF() {
-    if (typeof liff !== 'undefined') {
-      initLIFF();
-    } else {
-      let t = 0;
-      const iv = setInterval(function() {
-        t += 200;
-        if (typeof liff !== 'undefined') {
-          clearInterval(iv);
-          initLIFF();
-        } else if (t >= 5000) {
-          clearInterval(iv); // timeout — ทำงานเป็น non-LINE mode
-        }
-      }, 200);
+  let liffStatusContent = null;
+  
+  // Global function to update LIFF status display
+  function updateLiffStatus(text) {
+    if (liffStatusContent) {
+      liffStatusContent.innerHTML += '<br>' + text;
     }
-  })();
+  }
 
-  /* ════ DOWNLOAD PDF BUTTON ════ */
-  document.getElementById('btnDownloadPDF').addEventListener('click', function () {
-    if (!pdfDoc) {
-      alert('❌ ไม่มี PDF ให้ Download กรุณาสร้างใบเสนอราคาก่อน');
+  function openExternalBrowser(url, label) {
+    const targetUrl = url || window.location.href;
+    const tag = label ? '[' + label + '] ' : '';
+    updateLiffStatus(tag + 'openExternalBrowser called');
+    updateLiffStatus(tag + 'url: ' + targetUrl);
+
+    if (typeof liff === 'undefined') {
+      updateLiffStatus(tag + '❌ liff is undefined');
+      try { window.open(targetUrl, '_blank'); } catch (e) {}
+      return;
+    }
+    if (!liffReady) {
+      updateLiffStatus(tag + '❌ liffReady=false');
+      try { window.open(targetUrl, '_blank'); } catch (e) {}
       return;
     }
 
-    const fname = 'quotation-' + pdfQuoteNo + '.pdf';
+    let inClient = false;
+    try {
+      inClient = liff.isInClient();
+      updateLiffStatus(tag + 'isInClient: ' + inClient);
+    } catch (e) {
+      updateLiffStatus(tag + '❌ isInClient error');
+    }
 
-    if (isInLINE && liffReady) {
-      /* ── อยู่ใน LINE: ตรวจ friendship แล้วค่อย upload + openWindow ── */
-      checkFriendshipAndDownload(pdfDoc, fname, this);
-    } else {
-      /* ── นอก LINE: download ตรงๆ ── */
+    try {
+      const result = liff.openWindow({ url: targetUrl, external: true });
+      updateLiffStatus(tag + 'openWindow called');
+      if (result && typeof result.then === 'function') {
+        result.then(function() {
+          updateLiffStatus(tag + '✅ openWindow resolved');
+        }).catch(function(err) {
+          updateLiffStatus(tag + '❌ openWindow rejected: ' + (err && err.message ? err.message : err));
+        });
+      } else {
+        updateLiffStatus(tag + 'ℹ️ openWindow no promise');
+      }
+    } catch (err) {
+      updateLiffStatus(tag + '❌ openWindow exception: ' + (err && err.name ? err.name : 'Error') + ' ' + (err && err.message ? err.message : err));
+    }
+  }
+  
+  // Initialize LIFF
+  function initLIFF() {
+    console.log('Starting LIFF initialization...');
+    updateLiffStatus('🔄 Init LIFF...');
+    
+    if (typeof liff === 'undefined') {
+      console.error('LIFF SDK not loaded');
+      updateLiffStatus('❌ SDK not loaded');
+      return;
+    }
+    
+    liff.init({
+      liffId: '2009179980-z5myqDdb'
+    })
+    .then(() => {
+      liffReady = true;
+      isInLINE = liff.isInClient();
+      console.log('LIFF initialized successfully, in LINE:', isInLINE);
+      updateLiffStatus('✅ LIFF OK, inLINE:' + isInLINE);
+
       try {
-        pdfDoc.save(fname);
+        const ctx = liff.getContext();
+        const ctxStr = JSON.stringify(ctx);
+        console.log('LIFF context:', ctxStr);
+        updateLiffStatus('context: ' + ctxStr);
+      } catch (e) {
+        console.error('LIFF getContext failed:', e);
+        updateLiffStatus('❌ getContext failed');
+      }
+      
+      // Update UI for LINE users
+      if (isInLINE) {
+        const downloadText = document.getElementById('downloadText');
+        const pdfHint = document.getElementById('pdfHint');
+        if (downloadText) {
+          downloadText.innerHTML = '🌐 เปิดใน Browser เพื่อ Download';
+        }
+        if (pdfHint) {
+          pdfHint.innerHTML = '⚠️ ไม่สามารถ Download ใน LINE ได้ กรุณาเปิดใน Browser';
+          pdfHint.style.color = '#ff6b35';
+          pdfHint.style.fontSize = '0.85rem';
+          pdfHint.style.marginTop = '8px';
+        }
+      }
+    })
+    .catch((err) => {
+      console.error('LIFF initialization failed:', err);
+      updateLiffStatus('❌ Init failed: ' + err.message);
+      liffReady = false;
+      isInLINE = false;
+    });
+  }
+
+  // Initialize LIFF when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize LIFF status display reference
+    liffStatusContent = document.getElementById('liffStatusContent');
+    
+    // Console display functions
+    const consoleDisplay = document.getElementById('consoleDisplay');
+    const consoleContent = document.getElementById('consoleContent');
+    const toggleConsole = document.getElementById('toggleConsole');
+    
+    // Override console.log to show on screen
+    const originalLog = console.log;
+    console.log = function(...args) {
+      originalLog.apply(console, args);
+      const msg = args.join(' ');
+      // Direct update to LIFF status for debugging
+      if (liffStatusContent) {
+        const entry = document.createElement('div');
+        entry.textContent = msg;
+        entry.style.marginBottom = '2px';
+        liffStatusContent.appendChild(entry);
+      }
+      if (consoleContent) {
+        const logEntry = document.createElement('div');
+        logEntry.style.marginBottom = '3px';
+        logEntry.style.color = '#ffffff';
+        logEntry.textContent = msg;
+        consoleContent.appendChild(logEntry);
+        consoleDisplay.scrollTop = consoleDisplay.scrollHeight;
+      }
+    };
+    
+    // Override console.error to show on screen
+    const originalError = console.error;
+    console.error = function(...args) {
+      originalError.apply(console, args);
+      const msg = args.join(' ');
+      if (consoleContent) {
+        const logEntry = document.createElement('div');
+        logEntry.style.marginBottom = '3px';
+        logEntry.style.color = '#ff6b35';
+        logEntry.textContent = '❌ ' + msg;
+        consoleContent.appendChild(logEntry);
+        consoleDisplay.scrollTop = consoleDisplay.scrollHeight;
+      }
+      updateLiffStatus('<span style="color:#ff6b35">❌ ' + msg.substring(0, 50) + '</span>');
+    };
+    
+    // Toggle console display
+    toggleConsole.addEventListener('click', function() {
+      consoleDisplay.style.display = consoleDisplay.style.display === 'none' ? 'block' : 'none';
+    });
+    
+    console.log('✅ DOM loaded, checking LIFF SDK...');
+    
+    // Clear initial loading message
+    if (liffStatusContent) {
+      liffStatusContent.innerHTML = '';
+    }
+    
+    // Check immediately if LIFF is already loaded
+    if (typeof liff !== 'undefined') {
+      console.log('✅ LIFF SDK already loaded');
+      initLIFF();
+      return;
+    }
+    
+    // Wait for LIFF SDK to load (async script)
+    let attempts = 0;
+    const maxAttempts = 20; // 20 attempts * 200ms = 4 seconds max
+    
+    const checkLIFF = setInterval(function() {
+      attempts++;
+      console.log(`Checking LIFF SDK... attempt ${attempts}`);
+      
+      if (typeof liff !== 'undefined') {
+        console.log('LIFF SDK loaded after', attempts * 200, 'ms');
+        clearInterval(checkLIFF);
+        initLIFF();
+      } else if (attempts >= maxAttempts) {
+        console.error('LIFF SDK failed to load after', attempts * 200, 'ms');
+        clearInterval(checkLIFF);
+        liffReady = false;
+        isInLINE = false;
+        
+        // Update test button to show error
+        const testBtn = document.getElementById('btnTestLIFF');
+        if (testBtn) {
+          testBtn.textContent = '❌ LIFF SDK Failed';
+          testBtn.style.background = '#e63c2f';
+        }
+      }
+    }, 200);
+  });
+
+  /* ════ TEST LIFF OPEN WINDOW BUTTON ════ */
+  document.getElementById('btnTestLIFF').addEventListener('click', function() {
+    updateLiffStatus('🖱️ Test button clicked');
+    console.log('=== TEST LIFF BUTTON CLICKED ===');
+    console.log('LIFF Ready:', liffReady);
+    console.log('Is in LINE:', isInLINE);
+    console.log('liff object exists:', typeof liff !== 'undefined');
+    
+    if (typeof liff === 'undefined') {
+      console.error('LIFF SDK not loaded!');
+      updateLiffStatus('❌ SDK not loaded');
+      alert('❌ LIFF SDK ไม่ถูกโหลด กรุณารีเฟรชหน้า');
+      return;
+    }
+    
+    if (!liffReady) {
+      console.error('LIFF not ready!');
+      updateLiffStatus('❌ LIFF not ready');
+      alert('❌ LIFF ยังไม่พร้อมใช้งาน กรุณารอสักครู่');
+      return;
+    }
+    
+    // Try to check if in LINE
+    let inLineClient = false;
+    try {
+      inLineClient = liff.isInClient();
+      console.log('liff.isInClient():', inLineClient);
+      updateLiffStatus('isInClient: ' + inLineClient);
+    } catch (e) {
+      console.error('Error checking isInClient:', e);
+      updateLiffStatus('❌ isInClient error');
+    }
+    
+    openExternalBrowser(window.location.href, 'TEST');
+  });
+
+  /* ════ DOWNLOAD PDF BUTTON ════ */
+  document.getElementById('btnDownloadPDF').addEventListener('click', function () {
+    console.log('Download button clicked');
+    console.log('PDF Doc exists:', !!pdfDoc);
+    console.log('LIFF Ready:', liffReady);
+    console.log('Is in LINE:', isInLINE);
+    
+    if (!pdfDoc) {
+      console.error('No PDF document available');
+      alert('❌ ไม่มี PDF ให้ Download กรุณาสร้างใบเสนอราคาก่อน');
+      return;
+    }
+    
+    if (isInLINE && liffReady && typeof liff !== 'undefined') {
+      openExternalBrowser(window.location.href, 'PDF');
+    } else {
+      // Normal download
+      console.log('Starting normal PDF download...');
+      try {
+        pdfDoc.save('quotation-' + pdfQuoteNo + '.pdf');
         setTimeout(function() { closeModal(); }, 500);
       } catch (err) {
+        console.error('Download failed:', err);
         alert('❌ Download ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
       }
     }
@@ -1443,15 +1527,14 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.qty-card.selected').forEach(function (el) {
       el.classList.remove('selected');
     });
-    state.single = {}; state.multi = {}; state.shopActive = false;
-    state.shopQty = { name: 'ไม่เกิน 50 ชิ้น', price: 0 };
-    var sp = document.getElementById('shopSubPanel'); if (sp) sp.classList.remove('visible');
-    var spr = document.getElementById('shopPrice'); if (spr) spr.textContent = '+฿12,000';
-    var fq = document.querySelector('.qty-card'); if (fq) fq.classList.add('selected');
-    renderSummary();
+    document.querySelectorAll('.shop-sub.visible').forEach(function (el) {
+      el.classList.remove('visible');
+    });
+    updateSummary();
   });
 
-}); // end DOMContentLoaded
+}); // ปิด DOMContentLoaded
+
 </script>
 </body>
 </html>
