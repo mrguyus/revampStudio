@@ -1322,6 +1322,13 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log = function(...args) {
       originalLog.apply(console, args);
       const msg = args.join(' ');
+      // Direct update to LIFF status for debugging
+      if (liffStatusContent) {
+        const entry = document.createElement('div');
+        entry.textContent = msg;
+        entry.style.marginBottom = '2px';
+        liffStatusContent.appendChild(entry);
+      }
       if (consoleContent) {
         const logEntry = document.createElement('div');
         logEntry.style.marginBottom = '3px';
@@ -1330,7 +1337,6 @@ document.addEventListener('DOMContentLoaded', function () {
         consoleContent.appendChild(logEntry);
         consoleDisplay.scrollTop = consoleDisplay.scrollHeight;
       }
-      updateLiffStatus('✓ ' + msg);
     };
     
     // Override console.error to show on screen
@@ -1354,11 +1360,16 @@ document.addEventListener('DOMContentLoaded', function () {
       consoleDisplay.style.display = consoleDisplay.style.display === 'none' ? 'block' : 'none';
     });
     
-    console.log('DOM loaded, checking LIFF SDK...');
+    console.log('✅ DOM loaded, checking LIFF SDK...');
+    
+    // Clear initial loading message
+    if (liffStatusContent) {
+      liffStatusContent.innerHTML = '';
+    }
     
     // Check immediately if LIFF is already loaded
     if (typeof liff !== 'undefined') {
-      console.log('LIFF SDK already loaded');
+      console.log('✅ LIFF SDK already loaded');
       initLIFF();
       return;
     }
