@@ -9,6 +9,24 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/LineSDK.js" charset="utf-8"></script>
+<script>
+// Fallback LIFF SDK loader
+window.addEventListener('load', function() {
+  if (typeof liff === 'undefined') {
+    console.log('Loading fallback LIFF SDK...');
+    const script = document.createElement('script');
+    script.src = 'https://d.line-scdn.net/liff/edge/2/LineSDK.js';
+    script.charset = 'utf-8';
+    script.onload = function() {
+      console.log('Fallback LIFF SDK loaded');
+      if (typeof initLIFF === 'function') {
+        initLIFF();
+      }
+    };
+    document.head.appendChild(script);
+  }
+});
+</script>
 <style>
 :root{--ink:#0a0a0f;--paper:#f5f2eb;--cream:#faf8f3;--accent:#e63c2f;--accent2:#ff6b35;--gold:#c9a84c;--mid:#6b6b7b;--border:#d4d0c8}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1284,14 +1302,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Initialize LIFF when page loads
   document.addEventListener('DOMContentLoaded', function() {
-    // Wait a bit for LIFF SDK to load
-    setTimeout(function() {
+    console.log('DOM loaded, checking LIFF SDK...');
+    
+    // Check immediately if LIFF is already loaded
+    if (typeof liff !== 'undefined') {
+      console.log('LIFF SDK already loaded');
+      initLIFF();
+      return;
+    }
+    
+    // Wait for LIFF SDK to load (async script)
+    let attempts = 0;
+    const maxAttempts = 20; // 20 attempts * 200ms = 4 seconds max
+    
+    const checkLIFF = setInterval(function() {
+      attempts++;
+      console.log(`Checking LIFF SDK... attempt ${attempts}`);
+      
       if (typeof liff !== 'undefined') {
+        console.log('LIFF SDK loaded after', attempts * 200, 'ms');
+        clearInterval(checkLIFF);
         initLIFF();
-      } else {
-        console.error('LIFF SDK not available after timeout');
+      } else if (attempts >= maxAttempts) {
+        console.error('LIFF SDK failed to load after', attempts * 200, 'ms');
+        clearInterval(checkLIFF);
+        liffReady = false;
+        isInLINE = false;
+        
+        // Update test button to show error
+        const testBtn = document.getElementById('btnTestLIFF');
+        if (testBtn) {
+          testBtn.textContent = '❌ LIFF SDK Failed';
+          testBtn.style.background = '#e63c2f';
+        }
       }
-    }, 1000);
+    }, 200);
   });
 
   /* ════ TEST LIFF OPEN WINDOW BUTTON ════ */
