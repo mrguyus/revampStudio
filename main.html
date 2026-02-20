@@ -1255,6 +1255,14 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ════ LIFF INITIALIZATION ════ */
   let isInLINE = false;
   let liffReady = false;
+  let liffStatusContent = null;
+  
+  // Global function to update LIFF status display
+  function updateLiffStatus(text) {
+    if (liffStatusContent) {
+      liffStatusContent.innerHTML += '<br>' + text;
+    }
+  }
   
   // Initialize LIFF
   function initLIFF() {
@@ -1301,13 +1309,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Initialize LIFF when page loads
   document.addEventListener('DOMContentLoaded', function() {
-    // LIFF status display
-    const liffStatusContent = document.getElementById('liffStatusContent');
-    function updateLiffStatus(text) {
-      if (liffStatusContent) {
-        liffStatusContent.innerHTML += '<br>' + text;
-      }
-    }
+    // Initialize LIFF status display reference
+    liffStatusContent = document.getElementById('liffStatusContent');
     
     // Console display functions
     const consoleDisplay = document.getElementById('consoleDisplay');
