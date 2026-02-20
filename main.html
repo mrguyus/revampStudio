@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://static.line-scdn.net/liff/edge/2/LineSDK.js"></script>
+<script src="https://static.line-scdn.net/liff/edge/2/LineSDK.js" charset="utf-8"></script>
 <style>
 :root{--ink:#0a0a0f;--paper:#f5f2eb;--cream:#faf8f3;--accent:#e63c2f;--accent2:#ff6b35;--gold:#c9a84c;--mid:#6b6b7b;--border:#d4d0c8}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1238,15 +1238,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ════ LIFF INITIALIZATION ════ */
   let isInLINE = false;
+  let liffReady = false;
   
   // Initialize LIFF
   function initLIFF() {
+    console.log('Starting LIFF initialization...');
+    
+    if (typeof liff === 'undefined') {
+      console.error('LIFF SDK not loaded');
+      return;
+    }
+    
     liff.init({
       liffId: '2009179980-z5myqDdb'
     })
     .then(() => {
+      liffReady = true;
       isInLINE = liff.isInClient();
-      console.log('LIFF initialized, in LINE:', isInLINE);
+      console.log('LIFF initialized successfully, in LINE:', isInLINE);
       
       // Update UI for LINE users
       if (isInLINE) {
@@ -1264,31 +1273,65 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     })
     .catch((err) => {
-      console.error('LIFF initialization failed', err);
+      console.error('LIFF initialization failed:', err);
+      liffReady = false;
       isInLINE = false;
     });
   }
 
   // Initialize LIFF when page loads
-  if (typeof liff !== 'undefined') {
-    initLIFF();
-  }
+  document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for LIFF SDK to load
+    setTimeout(function() {
+      if (typeof liff !== 'undefined') {
+        initLIFF();
+      } else {
+        console.error('LIFF SDK not available after timeout');
+      }
+    }, 1000);
+  });
 
   /* ════ DOWNLOAD PDF BUTTON ════ */
   document.getElementById('btnDownloadPDF').addEventListener('click', function () {
-    if (!pdfDoc) return;
+    console.log('Download button clicked');
+    console.log('PDF Doc exists:', !!pdfDoc);
+    console.log('LIFF Ready:', liffReady);
+    console.log('Is in LINE:', isInLINE);
     
-    if (isInLINE) {
+    if (!pdfDoc) {
+      console.error('No PDF document available');
+      alert('❌ ไม่มี PDF ให้ Download กรุณาสร้างใบเสนอราคาก่อน');
+      return;
+    }
+    
+    if (isInLINE && liffReady) {
       // If in LINE, open external browser
-      const currentUrl = window.location.href;
-      liff.openWindow({
-        url: currentUrl,
-        external: true
-      });
+      console.log('Opening external browser...');
+      try {
+        const currentUrl = window.location.href;
+        liff.openWindow({
+          url: currentUrl,
+          external: true
+        }).then(() => {
+          console.log('External browser opened successfully');
+        }).catch((err) => {
+          console.error('Failed to open external browser:', err);
+          alert('❌ ไม่สามารถเปิด Browser ได้ กรุณาลองใหม่อีกครั้ง');
+        });
+      } catch (err) {
+        console.error('Error calling liff.openWindow:', err);
+        alert('❌ เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+      }
     } else {
       // Normal download
-      pdfDoc.save('quotation-' + pdfQuoteNo + '.pdf');
-      setTimeout(function() { closeModal(); }, 500);
+      console.log('Starting normal download...');
+      try {
+        pdfDoc.save('quotation-' + pdfQuoteNo + '.pdf');
+        setTimeout(function() { closeModal(); }, 500);
+      } catch (err) {
+        console.error('Download failed:', err);
+        alert('❌ Download ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+      }
     }
   });
 
