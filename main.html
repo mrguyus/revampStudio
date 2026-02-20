@@ -1291,6 +1291,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Initialize LIFF when page loads
   document.addEventListener('DOMContentLoaded', function() {
+    // Console display functions
+    const consoleDisplay = document.getElementById('consoleDisplay');
+    const consoleContent = document.getElementById('consoleContent');
+    const toggleConsole = document.getElementById('toggleConsole');
+    
+    // Override console.log to show on screen
+    const originalLog = console.log;
+    console.log = function(...args) {
+      originalLog.apply(console, args);
+      if (consoleContent) {
+        const logEntry = document.createElement('div');
+        logEntry.style.marginBottom = '3px';
+        logEntry.style.color = '#ffffff';
+        logEntry.textContent = args.join(' ');
+        consoleContent.appendChild(logEntry);
+        consoleDisplay.scrollTop = consoleDisplay.scrollHeight;
+      }
+    };
+    
+    // Override console.error to show on screen
+    const originalError = console.error;
+    console.error = function(...args) {
+      originalError.apply(console, args);
+      if (consoleContent) {
+        const logEntry = document.createElement('div');
+        logEntry.style.marginBottom = '3px';
+        logEntry.style.color = '#ff6b35';
+        logEntry.textContent = '❌ ' + args.join(' ');
+        consoleContent.appendChild(logEntry);
+        consoleDisplay.scrollTop = consoleDisplay.scrollHeight;
+      }
+    };
+    
+    // Toggle console display
+    toggleConsole.addEventListener('click', function() {
+      consoleDisplay.style.display = consoleDisplay.style.display === 'none' ? 'block' : 'none';
+    });
+    
     console.log('DOM loaded, checking LIFF SDK...');
     
     // Check immediately if LIFF is already loaded
