@@ -8,25 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://static.line-scdn.net/liff/edge/2/LineSDK.js" charset="utf-8"></script>
-<script>
-// Fallback LIFF SDK loader
-window.addEventListener('load', function() {
-  if (typeof liff === 'undefined') {
-    console.log('Loading fallback LIFF SDK...');
-    const script = document.createElement('script');
-    script.src = 'https://d.line-scdn.net/liff/edge/2/LineSDK.js';
-    script.charset = 'utf-8';
-    script.onload = function() {
-      console.log('Fallback LIFF SDK loaded');
-      if (typeof initLIFF === 'function') {
-        initLIFF();
-      }
-    };
-    document.head.appendChild(script);
-  }
-});
-</script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js" charset="utf-8"></script>
 <style>
 :root{--ink:#0a0a0f;--paper:#f5f2eb;--cream:#faf8f3;--accent:#e63c2f;--accent2:#ff6b35;--gold:#c9a84c;--mid:#6b6b7b;--border:#d4d0c8}
 *{margin:0;padding:0;box-sizing:border-box}
