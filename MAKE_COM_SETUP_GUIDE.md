@@ -1,5 +1,7 @@
 # Make.com Setup Guide — ส่งใบเสนอราคาผ่าน Gmail
 
+# min.html
+  html-minifier-terser --collapse-whitespace --remove-comments --minify-js true main.html -o index.html
 ## ข้อมูลที่เว็บส่งมาให้ Make.com
 
 Webhook จะส่ง JSON payload มาพร้อมข้อมูลครบดังนี้:
