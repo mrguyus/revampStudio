@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revamp Studio</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #06C755;
+      --green-dark: #04a344;
+      --green-light: #e6faf0;
+    }
+
+    body {
+      font-family: 'Noto Sans Thai', sans-serif;
+      background: #f5f5f5;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -120px; right: -120px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(6,199,85,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+      padding: 40px 28px 36px;
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeUp 0.4s ease both;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      width: 68px; height: 68px;
+      background: var(--green);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(6,199,85,0.35);
+    }
+    .logo svg { width: 40px; height: 40px; fill: white; }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #888;
+      text-align: center;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .profile {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--green-light);
+      border-radius: 14px;
+      width: 100%;
+      margin-bottom: 24px;
+      border: 1.5px solid rgba(6,199,85,0.2);
+    }
+    .profile.show { display: flex; }
+    .profile img {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--green);
+    }
+    .profile-name { font-size: 14px; font-weight: 600; color: #111; }
+    .profile-sub  { font-size: 12px; color: #777; margin-top: 2px; }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Noto Sans Thai', sans-serif;
+      cursor: pointer;
+      background: var(--green);
+      color: white;
+      box-shadow: 0 4px 16px rgba(6,199,85,0.4);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn:hover:not(:disabled) { background: var(--green-dark); transform: translateY(-1px); }
+    .btn:active:not(:disabled) { transform: translateY(0); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #status {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+      min-height: 18px;
+    }
+    #status.error   { color: #e53e3e; }
+    #status.success { color: var(--green); }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+    </svg>
+  </div>
+
+  <h1>Revamp Studio</h1>
+  <p class="subtitle" id="subtitle">กำลังเตรียมความพร้อม...</p>
+
+  <div class="profile" id="profileBox">
+    <img id="profileImg" src="" alt="avatar" />
+    <div>
+      <div class="profile-name" id="profileName"></div>
+      <div class="profile-sub">สวัสดีครับ/ค่ะ 👋</div>
+    </div>
+  </div>
+
+  <button class="btn" id="actionBtn" disabled>
+    <span class="spinner" id="spinner"></span>
+    <span id="btnText">กำลังโหลด...</span>
+  </button>
+
+  <div id="status"></div>
+</div>
+
+<script>
+  const LIFF_ID     = '2009179980-z5myqDdb';
+  const OA_ID       = '@842zfdlr';
+  const WEBSITE_URL = 'https://revampstudio.pages.dev/';
+
+  const btn      = document.getElementById('actionBtn');
+  const btnText  = document.getElementById('btnText');
+  const spinner  = document.getElementById('spinner');
+  const statusEl = document.getElementById('status');
+  const subtitle = document.getElementById('subtitle');
+
+  function setReady(text, onclick) {
+    spinner.style.display = 'none';
+    btnText.textContent = text;
+    btn.disabled = false;
+    btn.onclick = onclick;
+  }
+
+  function setStatus(msg, type = '') {
+    statusEl.textContent = msg;
+    statusEl.className = type;
+  }
+
+  async function init() {
+    try {
+      await liff.init({
+        liffId: LIFF_ID,
+        withLoginOnExternalBrowser: true
+      });
+
+      // ถ้ายังไม่ login (เปิดนอก LINE) → auto redirect ไป login
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+
+      // ดึง profile แสดงทันที
+      const profile = await liff.getProfile();
+      document.getElementById('profileImg').src = profile.pictureUrl || '';
+      document.getElementById('profileName').textContent = profile.displayName;
+      document.getElementById('profileBox').classList.add('show');
+
+      // เช็ค friendship
+      await checkAndProceed();
+
+    } catch (e) {
+      console.error(e);
+      subtitle.textContent = 'เกิดข้อผิดพลาด';
+      setStatus('❌ ' + e.message, 'error');
+      setReady('ลองใหม่', init);
+    }
+  }
+
+  async function checkAndProceed() {
+    try {
+      const friendship = await liff.getFriendship();
+
+      if (friendship.friendFlag) {
+        // เป็นเพื่อนแล้ว → เปิดเว็บได้เลย
+        subtitle.textContent = 'พร้อมแล้ว! กดเพื่อเข้าเว็บไซต์';
+        setReady('🌐 เปิด Revamp Studio', openWebsite);
+      } else {
+        // ยังไม่ได้เพิ่มเพื่อน → add friend ก่อน แล้วค่อยเปิดเว็บ
+        subtitle.textContent = 'กดเพื่อเพิ่มเพื่อนและเข้าเว็บไซต์';
+        setReady('➕ เพิ่มเพื่อน & เข้าเว็บไซต์', addFriendThenOpen);
+      }
+    } catch (e) {
+      // getFriendship error (scope ไม่ครบ ฯลฯ) → ข้ามไปเปิดเว็บเลย
+      subtitle.textContent = 'พร้อมแล้ว!';
+      setReady('🌐 เปิด Revamp Studio', openWebsite);
+    }
+  }
+
+  function addFriendThenOpen() {
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    btnText.textContent = 'กำลังดำเนินการ...';
+    setStatus('กำลังเพิ่มเพื่อน...');
+
+    // เปิดหน้า OA ใน LINE in-app
+    liff.openWindow({ url: `https://line.me/R/ti/p/${OA_ID}`, external: false });
+
+    // เปิดเว็บหลัง delay เล็กน้อย
+    setTimeout(openWebsite, 1500);
+  }
+
+  function openWebsite() {
+    liff.openWindow({ url: WEBSITE_URL, external: true });
+    setStatus('✅ เปิดเว็บไซต์แล้ว!', 'success');
+    subtitle.textContent = 'เปิดเว็บไซต์ใน browser แล้ว';
+    spinner.style.display = 'none';
+    btn.disabled = false;
+    btnText.textContent = '🔁 เปิดอีกครั้ง';
+    btn.onclick = openWebsite;
+  }
+
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
